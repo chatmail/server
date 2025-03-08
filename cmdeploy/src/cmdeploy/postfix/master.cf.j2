@@ -32,7 +32,6 @@ submission inet n       -       y       -       5000    smtpd
   -o milter_macro_daemon_name=ORIGINATING
   -o smtpd_client_connection_count_limit=1000
   -o smtpd_proxy_filter=127.0.0.1:{{ config.filtermail_smtp_port }}
-  -o cleanup_service_name=authclean
 smtps     inet  n       -       y       -       5000    smtpd
   -o syslog_name=postfix/smtps
   -o smtpd_tls_wrappermode=yes
@@ -50,7 +49,6 @@ smtps     inet  n       -       y       -       5000    smtpd
   -o smtpd_client_connection_count_limit=1000
   -o milter_macro_daemon_name=ORIGINATING
   -o smtpd_proxy_filter=127.0.0.1:{{ config.filtermail_smtp_port }}
-  -o cleanup_service_name=authclean
 #628       inet  n       -       y       -       -       qmqpd
 pickup    unix  n       -       y       60      1       pickup
 cleanup   unix  n       -       y       -       0       cleanup

@@ -2,6 +2,9 @@
 
 ## untagged
 
+- Remove cleanup service from submission ports
+  ([#512](https://github.com/chatmail/server/pull/512))
+
 - cmdeploy dovecot: delete big messages after 7 days
   ([#504](https://github.com/chatmail/server/pull/504))
 
