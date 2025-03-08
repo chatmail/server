@@ -90,5 +90,10 @@ localhost:{{ config.postfix_reinject_port }} inet  n       -       n       -    
 # We do not do this for received mails
 # as this will break DKIM signatures
 # if `Received` header is signed.
+#
+# This service also rewrites
+# Subject with `[...]`
+# to make sure the users
+# cannot send unprotected Subject.
 authclean unix  n       -       -       -       0       cleanup
   -o header_checks=regexp:/etc/postfix/submission_header_cleanup
