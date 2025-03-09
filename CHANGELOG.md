@@ -2,6 +2,9 @@
 
 ## untagged
 
+- Pass through `original_content` instead of `content` in filtermail
+  ([#509](https://github.com/chatmail/server/pull/509))
+
 - cmdeploy dovecot: delete big messages after 7 days
   ([#504](https://github.com/chatmail/server/pull/504))
 
