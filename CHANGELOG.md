@@ -2,6 +2,9 @@
 
 ## untagged
 
+- Document TLS requirements in the readme
+  ([#514](https://github.com/chatmail/server/pull/514))
+
 - Remove cleanup service from submission ports
   ([#512](https://github.com/chatmail/server/pull/512))
 
