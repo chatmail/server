@@ -27,6 +27,9 @@
 - unbound: check that port 53 is not occupied by a different process
   ([#537](https://github.com/chatmail/server/pull/537))
 
+- unbound: before unbound is there, use 9.9.9.9 for resolving
+  ([#518](https://github.com/chatmail/relay/pull/518))
+
 - Limit the bind for the HTTPS server on 8443 to 127.0.0.1 
   ([#522](https://github.com/chatmail/server/pull/522))
   ([#532](https://github.com/chatmail/server/pull/532))
