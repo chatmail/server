@@ -46,10 +46,7 @@ http {
 
 	server {
   
-		listen 8443 ssl default_server;
-		{% if not disable_ipv6 %}
-		listen [::]:8443 ssl default_server;
-		{% endif %}
+		listen 127.0.0.1:8443 ssl default_server;
 
 		root /var/www/html;
 
