@@ -1,21 +1,23 @@
 
 <img width="800px" src="www/src/collage-top.png"/>
 
-# Chatmail services optimized for Delta Chat apps 
+# Chatmail servers for fast end-to-end encrypted instant messaging 
 
 This repository helps to setup a ready-to-use chatmail server
 comprised of a minimal setup of the battle-tested 
 [postfix smtp](https://www.postfix.org) and [dovecot imap](https://www.dovecot.org) services. 
+The automated setup is designed and optimized for providing chatmail addresses 
+for immediate permission-free onboarding through chat apps and bots. 
+Chatmail addresses are automatically created by a first login, 
+after which the initially specified password is required 
+for sending and receiving messages through them. 
 
-The setup is designed and optimized for providing chatmail accounts 
-for use by [Delta Chat apps](https://delta.chat).
+Please see [this list of known apps and client projects](https://support.delta.chat/t/list-of-all-known-client-projects/3059) which offer instant onboarding on chatmail servers,
+and [this list of known public 3rd party chatmail servers](https://delta.chat/en/chatmail). 
 
-Chatmail accounts are automatically created by a first login, 
-after which the initially specified password is required for using them. 
+## Deploying a chatmail server 
 
-## Deploying your own chatmail server 
-
-To deploy chatmail on your own server, you must have set-up ssh authentication and need to use an ed25519 key, due to an [upstream bug in paramiko](https://github.com/paramiko/paramiko/issues/2191). You also need to add your private key to the local ssh-agent, because you can't type in your password during deployment.
+To deploy chatmail on a server, you must have set up ssh authentication and need to use an ed25519 key, due to an [upstream bug in paramiko](https://github.com/paramiko/paramiko/issues/2191). You also need to add your private key to the local ssh-agent, because you can't type in your password during deployment.
 
 We use `chat.example.org` as the chatmail domain in the following steps. 
 Please substitute it with your own domain. 
