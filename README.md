@@ -1,7 +1,7 @@
 
 <img width="800px" src="www/src/collage-top.png"/>
 
-# Chatmail servers for fast end-to-end encrypted instant messaging 
+# Chatmail servers for end-to-end encrypted instant messaging 
 
 This repository helps to setup a ready-to-use chatmail server
 comprised of a minimal setup of the battle-tested 
