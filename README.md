@@ -31,7 +31,7 @@ Please see [this list of known apps and client projects](https://support.delta.c
 and [this list of known public 3rd party chatmail servers](https://delta.chat/en/chatmail). 
 
 
-## Minimal requirements, Perequisites 
+## Minimal requirements, Prerequisites 
 
 You will need the following: 
 
