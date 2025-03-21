@@ -5,17 +5,17 @@
 
 Chatmail servers are minimal interoperable e-mail routing machines designed for:
 
-- Convenience: Instant onboarding, with optional Google/Apple/Huawei push notifications
+- **Convenience:** Instant onboarding, with optional Google/Apple/Huawei push notifications
 
-- Privacy: Just login, no questions asked, no name, numbers or e-mail needed
+- **Privacy:** Just login, no questions asked, no name, numbers or e-mail needed
 
-- Speed: End-to-End Message delivery in well under a second
+- **Speed:** End-to-End Message delivery in well under a second
 
-- Security: Strict TLS, DKIM and OpenPGP with metadata-minimization enforced. 
+- **Security:** Strict TLS, DKIM and OpenPGP with metadata-minimization enforced. 
 
-- Relaxation: No annoying spam-checking, IP reputation or rate limits
+- **Relaxation:** No annoying spam-checking, IP reputation or rate limits
 
-- Efficiency: messages are only stored for transit and removed automatically. 
+- **Efficiency:** messages are only stored for transit and removed automatically. 
 
 This repository contains everything needed to setup a ready-to-use chatmail server
 comprised of a minimal setup of the battle-tested 
