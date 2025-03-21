@@ -1,11 +1,24 @@
 
 <img width="800px" src="www/src/collage-top.png"/>
 
-# Chatmail servers for end-to-end encrypted instant messaging 
+# Chatmail servers for secure instant messaging 
 
-This repository helps to setup a ready-to-use chatmail server
+Chatmail servers are minimal secure e-mail routing machines designed for:
+
+- Convenience: Instant onboarding with Google/Apple/Huawei push notifications
+
+- Privacy: Just login, no questions asked, no name, numbers or e-mail needed
+
+- Speed: End-to-End Message delivery in well under a second
+
+- Security: Strict TLS, DKIM and OpenPGP encryption is enforced. 
+
+- Fun: No annoying spam-checking, IP reputation or rate limits
+
+This repository contains everything needed to setup a ready-to-use chatmail server
 comprised of a minimal setup of the battle-tested 
 [postfix smtp](https://www.postfix.org) and [dovecot imap](https://www.dovecot.org) services. 
+
 The automated setup is designed and optimized for providing chatmail addresses 
 for immediate permission-free onboarding through chat apps and bots. 
 Chatmail addresses are automatically created by a first login, 
@@ -14,6 +27,20 @@ for sending and receiving messages through them.
 
 Please see [this list of known apps and client projects](https://support.delta.chat/t/list-of-all-known-client-projects/3059) which offer instant onboarding on chatmail servers,
 and [this list of known public 3rd party chatmail servers](https://delta.chat/en/chatmail). 
+
+
+## Minimal requirements, Perequisites 
+
+You will need the following: 
+
+- control over a domain through a DNS provider of your choice, 
+
+- Debian 12 machine with IPV4 and preferably also IPV6 addresses, 
+  1GB RAM, one slow CPU and maybe 10GB storage for a
+  few thousand active chatmail addresses, and 
+
+- password-less ssh root login to the domain 
+
 
 ## Deploying a chatmail server 
 
