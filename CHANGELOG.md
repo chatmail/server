@@ -2,6 +2,10 @@
 
 ## untagged
 
+- Limit the bind for the HTTPS server on 8443 to 127.0.0.1 
+  ([#522](https://github.com/chatmail/server/pull/522))
+  ([#532](https://github.com/chatmail/server/pull/532))
+
 - Send SNI when connecting to outside servers
   ([#524](https://github.com/chatmail/server/pull/524))
 

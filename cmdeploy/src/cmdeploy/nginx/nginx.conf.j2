@@ -117,10 +117,7 @@ http {
 
 	# Redirect www. to non-www
 	server {
-		listen 8443 ssl;
-		{% if not disable_ipv6 %}
-		listen [::]:8443 ssl;
-		{% endif %}
+		listen 127.0.0.1:8443 ssl;
 		server_name www.{{ config.domain_name }};
 		return 301 $scheme://{{ config.domain_name }}$request_uri;
 		access_log syslog:server=unix:/dev/log,facility=local7;
