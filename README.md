@@ -3,80 +3,90 @@
 
 # Chatmail servers for secure instant messaging 
 
-Chatmail servers are minimal interoperable e-mail routing machines designed for:
+Chatmail servers are interoperable email routing machines optimized for:
 
-- **Convenience:** Instant onboarding, with optional Google/Apple/Huawei push notifications
+- **Convenience:** Low friction instant onboarding
 
-- **Privacy:** Just login, no questions asked, no name, numbers or e-mail needed
+- **Privacy:** No name, telephone numbers, or email required to sign-up permitting you to create unique and disposable identities. Push notification architecture is privacy-preserving. (Apple, Google, and Huawei)
 
-- **Speed:** End-to-End Message delivery in well under a second
+- **Speed:** Message delivery in well under a second.
 
-- **Security:** Strict TLS, DKIM and OpenPGP with metadata-minimization enforced. 
+- **Security:** Strict TLS, DKIM and OpenPGP with metadata-minimization rules enforced.
 
-- **Relaxation:** No annoying spam-checking, IP reputation or rate limits
+- **Reliability:** No spam or IP reputation checks to disrupt message delivery. Default per-user message rate limit is high enough for realtime chats.
 
-- **Efficiency:** messages are only stored for transit and removed automatically. 
+- **Efficiency:** Messages are only stored for transit and removed automatically.
 
 This repository contains everything needed to setup a ready-to-use chatmail server
 comprised of a minimal setup of the battle-tested 
-[postfix smtp](https://www.postfix.org) and [dovecot imap](https://www.dovecot.org) services. 
+[Postfix SMTP](https://www.postfix.org) and [Dovecot IMAP](https://www.dovecot.org) services.
 
-The automated setup is designed and optimized for providing chatmail addresses 
-for immediate permission-free onboarding through chat apps and bots. 
-Chatmail addresses are automatically created by a first login, 
-after which the initially specified password is required 
-for sending and receiving messages through them. 
+The automated setup is designed and optimized for providing chatmail addresses
+for immediate permission-free onboarding through chat apps and bots.
+Chatmail addresses are automatically created at first login,
+after which the initially specified password is required
+for sending and receiving messages through them.
 
-Please see [this list of known apps and client projects](https://chatmail.at/apps.html) which offer instant onboarding on chatmail servers,
-and [this list of known public 3rd party chatmail servers](https://delta.chat/en/chatmail). 
+Please see [this list of known apps and client projects](https://chatmail.at/apps.html) which offer instant onboarding on chatmail servers
+and [this list of known public 3rd party chatmail servers](https://delta.chat/en/chatmail).
 
 
 ## Minimal requirements, Prerequisites 
 
 You will need the following: 
 
-- control over a domain through a DNS provider of your choice, 
+- Control over a domain through a DNS provider of your choice.
 
-- a remote Debian 12 machine with IPV4 and preferably also IPV6 addresses and
-  reachable SMTP/SUBMISSIONS/IMAPS/HTTPS ports. 
-  Machine needs 1GB RAM, one slow CPU and maybe 10GB storage for a
-  few thousand active chatmail addresses,
+- A Debian 12 server with reachable SMTP/SUBMISSIONS/IMAPS/HTTPS ports.
+  IPv6 is encouraged if available.
+  Chatmail servers only require 1GB RAM, one CPU, and perhaps 10GB storage for a
+  few thousand active chatmail addresses.
 
-- a terminal window with password-less ssh root login to the remote machine;
-  you must have set up ssh authentication and need to use an ed25519 key, 
-  due to an [upstream bug in paramiko](https://github.com/paramiko/paramiko/issues/2191);
-  you also need to add your private key to the local ssh-agent, 
-  because you can't type in your password during deployment.
+- Key-based SSH authentication to the server's root user.
+  You must add a passphrase-protected private key to the local ssh-agent
+  because you can't type in your passphrase during deployment.
+  (An ed25519 private key is required due to an [upstream bug in paramiko](https://github.com/paramiko/paramiko/issues/2191))
 
 
 ## Getting started 
 
-We use `chat.example.org` as the chatmail domain in the following steps. 
+We use `chat.example.org` as the chatmail domain in the following steps.
 Please substitute it with your own domain. 
 
-1. Install the `cmdeploy` command in a virtualenv
+1. Setup the initial DNS records.
+   The following is an example in the familiar BIND zone file format with
+   a TTL of 1 hour (3600 seconds).
+   Please substitute your domain and IP addresses.
+
+   ```
+    chat.example.com. 3600 IN A 198.51.100.5
+    chat.example.com. 3600 IN AAAA 2001:db8::5
+    www.chat.example.com. 3600 IN CNAME chat.example.com.
+    mta-sts.chat.example.com. 3600 IN CNAME chat.example.com.
+   ```
+
+2. Clone the repository and bootstrap the Python virtualenv.
 
    ```
     git clone https://github.com/chatmail/server
-    cd chatmail
+    cd server
     scripts/initenv.sh
    ```
 
-2. Create chatmail configuration file `chatmail.ini`:
+3. Create chatmail configuration file `chatmail.ini`:
 
    ```
     scripts/cmdeploy init chat.example.org  # <-- use your domain 
    ```
 
-3. Point your domain to the server's IP address,
-   if you haven't done so already.
-   Verify that SSH root login works:
+4. Verify that SSH root login works:
 
    ```
     ssh root@chat.example.org   # <-- use your domain 
    ```
 
-4. Deploy to the remote chatmail server:
+
+5. Deploy to the remote chatmail server:
 
    ```
     scripts/cmdeploy run
@@ -121,13 +131,13 @@ This repository has four directories:
   and a [pyinfra](https://pyinfra.com)-based deployment script.
 
 - [chatmaild](https://github.com/chatmail/server/tree/main/chatmaild)
-  is a python package containing several small services
+  is a Python package containing several small services
   which handle authentication,
   trigger push notifications on new messages,
   ensure that outbound mails are encrypted,
   delete inactive users,
   and some other minor things.
-  chatmaild can also be installed as a stand-alone python package.
+  chatmaild can also be installed as a stand-alone Python package.
 
 - [www](https://github.com/chatmail/server/tree/main/www)
   contains the html, css, and markdown files
@@ -151,15 +161,15 @@ according to the `chatmail.ini` config.
 
 The components of chatmail are:
 
-- [postfix smtp server](https://www.postfix.org) accepts sent messages (both from your users and from other servers)
+- [Postfix SMTP server](https://www.postfix.org) accepts sent messages (both from your users and from other servers)
 
-- [dovecot imap server](https://www.dovecot.org) stores messages for your users until they download them
+- [Dovecot IMAP server](https://www.dovecot.org) stores messages for your users until they download them
 
-- [nginx](https://nginx.org/) shows the web page with your privacy policy and additional information
+- [Nginx](https://nginx.org/) shows the web page with your privacy policy and additional information
 
-- [acmetool](https://hlandau.github.io/acmetool/) manages TLS certificates for dovecot, postfix, and nginx
+- [acmetool](https://hlandau.github.io/acmetool/) manages TLS certificates for Dovecot, Postfix, and Nginx
 
-- [opendkim](http://www.opendkim.org/) for signing messages with DKIM and rejecting inbound messages without DKIM
+- [OpenDKIM](http://www.opendkim.org/) for signing messages with DKIM and rejecting inbound messages without DKIM
 
 - [mtail](https://google.github.io/mtail/) for collecting anonymized metrics in case you have monitoring
 
@@ -181,8 +191,8 @@ A short overview:
   to send mails for them.
 
 - [`filtermail`](https://github.com/chatmail/server/blob/main/chatmaild/src/chatmaild/filtermail.py) prevents
-  unencrypted e-mail from leaving the chatmail service
-  and is integrated into postfix's outbound mail pipelines.
+  unencrypted email from leaving the chatmail service
+  and is integrated into Postfix's outbound mail pipelines.
 
 - [`chatmail-metadata`](https://github.com/chatmail/server/blob/main/chatmaild/src/chatmaild/metadata.py) is contacted by a
   [dovecot lua script](https://github.com/chatmail/server/blob/main/cmdeploy/src/cmdeploy/dovecot/push_notification.lua)
@@ -191,7 +201,7 @@ A short overview:
   it [passes the user's push notification token](https://github.com/chatmail/server/blob/main/chatmaild/src/chatmaild/notifier.py)
   to [notifications.delta.chat](https://delta.chat/help#instant-delivery)
   so the push notifications on the user's phone can be triggered
-  by Apple/Google.
+  by Apple/Google/Huawei.
 
 - [`delete_inactive_users`](https://github.com/chatmail/server/blob/main/chatmaild/src/chatmaild/delete_inactive_users.py)
   deletes users if they have not logged in for a very long time.
@@ -210,15 +220,15 @@ A short overview:
 
 ### Home page and getting started for users
 
-`cmdeploy run` also creates default static Web pages and deploys them
-to a nginx web server with: 
+`cmdeploy run` also creates default static web pages and deploys them
+to a Nginx web server with:
 
 - a default `index.html` along with a QR code that users can click to
-  create accounts on your chatmail provider,
+  create accounts on your chatmail provider
 
-- a default `info.html` that is linked from the home page,
+- a default `info.html` that is linked from the home page
 
-- a default `policy.html` that is linked from the home page.
+- a default `policy.html` that is linked from the home page
 
 All `.html` files are generated
 by the according markdown `.md` file in the `www/src` directory.
@@ -231,13 +241,13 @@ by the according markdown `.md` file in the `www/src` directory.
 scripts/cmdeploy webdev
 ```
 
-This starts a local live development cycle for chatmail Web pages:
+This starts a local live development cycle for chatmail web pages:
 
 - uses the `www/src/page-layout.html` file for producing static
   HTML pages from `www/src/*.md` files
 
 - continously builds the web presence reading files from `www/src` directory
-  and generating html files and copying assets to the `www/build` directory.
+  and generating HTML files and copying assets to the `www/build` directory.
 
 - Starts a browser window automatically where you can "refresh" as needed.
 
@@ -252,17 +262,17 @@ login to the server with ssh and run:
     touch /etc/chatmail-nocreate
 ```
 
-While this file is present, account creation will be blocked.
+Account creation will be denied while this file is present.
 
 ### Ports
 
-[Postfix](http://www.postfix.org/) listens on ports 25 (smtp) and 587 (submission) and 465 (submissions).
-[Dovecot](https://www.dovecot.org/) listens on ports 143 (imap) and 993 (imaps).
-[nginx](https://www.nginx.com/) listens on port 8443 (https-alt) and 443 (https).
+[Postfix](http://www.postfix.org/) listens on ports 25 (SMTP) and 587 (SUBMISSION) and 465 (SUBMISSIONS).
+[Dovecot](https://www.dovecot.org/) listens on ports 143 (IMAP) and 993 (IMAPS).
+[Nginx](https://www.nginx.com/) listens on port 8443 (HTTPS-ALT) and 443 (HTTPS).
 Port 443 multiplexes HTTPS, IMAP and SMTP using ALPN to redirect connections to ports 8443, 465 or 993.
-[acmetool](https://hlandau.github.io/acmetool/) listens on port 80 (http).
+[acmetool](https://hlandau.github.io/acmetool/) listens on port 80 (HTTP).
 
-Chatmail-core based apps will, however, discover all ports and configurations
+chatmail-core based apps will, however, discover all ports and configurations
 automatically by reading the [autoconfig XML file](https://www.ietf.org/archive/id/draft-bucksch-autoconfig-00.html) from the chatmail server.
 
 ## Email authentication
@@ -321,7 +331,7 @@ while actually it is a problem with your TLS certificate.
 If you want to migrate chatmail from an old machine
 to a new machine,
 you can use these steps.
-They were tested with a linux laptop;
+They were tested with a Linux laptop;
 you might need to adjust some of the steps to your environment.
 
 Let's assume that your `mail_domain` is `mail.example.org`,
@@ -329,56 +339,58 @@ all involved machines run Debian 12,
 your old server's IP address is `13.37.13.37`,
 and your new server's IP address is `13.12.23.42`.
 
-During the guide, you might get a warning about changed SSH Host keys;
-in this case, just run `ssh-keygen -R "mail.example.org"` as recommended
-to make sure you can connect with SSH.
+Note, you should lower the TTLs of your DNS records to a value
+such as 300 (5 minutes) so the migration happens as smoothly as possible.
 
-1. First, copy `/var/lib/acme` to the new server with
-   `ssh root@13.37.13.37 tar c /var/lib/acme | ssh root@13.12.23.42 tar x -C /var/lib/`.
-   This transfers your TLS certificate.
+During the guide you might get a warning about changed SSH Host keys;
+in this case, just run `ssh-keygen -R "mail.example.org"` as recommended.
 
-2. You should also copy `/etc/dkimkeys` to the new server with
-   `ssh root@13.37.13.37 tar c /etc/dkimkeys | ssh root@13.12.23.42 tar x -C /etc/`
-   so the DKIM DNS record stays correct.
+1. First, disable mail services on the old server.
 
-3. On the new server, run `chown root: -R /var/lib/acme` and `chown opendkim: -R /etc/dkimkeys` to make sure the permissions are correct.
-
-4. Run `cmdeploy run --disable-mail --ssh-host 13.12.23.42` to install chatmail on the new machine.
-   postfix and dovecot are disabled for now,
-   we will enable them later.
-
-5. Now, point DNS to the new IP addresses.
-
-   You can already remove the old IP addresses from DNS.
-   Existing Chatmail app users or bots will still be able to connect
-   to the old server, send and receive messages,
-   but new ones will fail to create new profiles
-   with your chatmail server.
-
-   If other servers try to deliver messages to your new server they will fail,
-   but normally email servers will retry delivering messages
-   for at least a week, so messages will not be lost.
-
-6. Now you can run `cmdeploy run --disable-mail --ssh-host 13.37.13.37` to disable your old server.
+   ```
+    cmdeploy run --disable-mail --ssh-host 13.37.13.37
+   ```
 
    Now your users will notice the migration
    and will not be able to send or receive messages
    until the migration is completed.
 
-7. After everything is stopped,
-    you can copy the `/home/vmail/mail` directory to the new server.
-    It includes all user data, messages, password hashes, etc.
+2. Now we want to copy `/home/vmail`, `/var/lib/acme`, `/etc/dkimkeys`, `/run/echobot`, and `/var/spool/postfix` to the new server.
+   Login to the old server while forwarding your SSH agent so you can copy directly from the old server to the new server with
+   your SSH key:
 
-    Just run: `ssh root@13.37.13.37 tar c /home/vmail/mail | ssh root@13.12.23.42 tar x -C /home/vmail/`
+   ```
+    ssh -A root@13.37.13.37
+    tar c - /home/vmail/mail /var/lib/acme /etc/dkimkeys /run/echobot /var/spool/postfix | ssh root@13.12.23.42 "tar x -C /"
+   ```
 
-    After this, your new server has all the necessary files to start operating :)
+   This transfers all accounts, the TLS certificate, DKIM keys (so DKIM DNS record remains valid), and the echobot's password so it continues to function.
+   It also preserves the Postfix mail spool so any messages pending delivery will still be delivered.
 
-8. To be sure the permissions are still fine,
-    run `chown vmail: -R /home/vmail` on the new server.
+3. Install chatmail on the new machine:
 
-9. Finally, you can run `cmdeploy run` to turn on chatmail on the new server.
-    Your users can continue using the chatmail server,
-    and messages which were sent after step 6. should arrive now.
+   ```
+    cmdeploy run --disable-mail --ssh-host 13.12.23.42
+   ```
+   Postfix and Dovecot are disabled for now; we will enable them later. This ensures all user accounts are provisioned.
+
+3. On the new server, run the following to ensure the ownership is correct in case UIDs/GIDs changed:
+
+   ```
+    chown root: -R /var/lib/acme
+    chown opendkim: -R /etc/dkimkeys
+    chown vmail: -R /home/vmail/mail
+    chown echobot: -R /run/echobot
+   ```
+
+4. Now, update DNS to the new IP addresses.
+
+   If other servers try to deliver messages to your server they may fail,
+   but normally email servers will retry delivering messages
+   for at least a week, so messages will not be lost.
+
+5. Finally, you can execute `cmdeploy run --ssh-host 13.12.23.42` to turn on chatmail on the new server.
+    Your users will be able to use the chatmail server as soon as the DNS changes have propagated.
     Voilà!
 
 ## Setting up a reverse proxy
