@@ -228,7 +228,6 @@ def _configure_opendkim(domain: str, dkim_selector: str = "dkim") -> bool:
     )
     need_restart |= service_file.changed
 
-
     return need_restart
 
 
@@ -275,7 +274,18 @@ def _configure_postfix(config: Config, debug: bool = False) -> bool:
     )
     need_restart |= master_config.changed
 
-    header_cleanup = files.put(
+    incoming_header_cleanup = files.put(
+        src=importlib.resources.files(__package__).joinpath(
+            "postfix/incoming_header_cleanup"
+        ),
+        dest="/etc/postfix/incoming_header_cleanup",
+        user="root",
+        group="root",
+        mode="644",
+    )
+    need_restart |= incoming_header_cleanup.changed
+
+    submission_header_cleanup = files.put(
         src=importlib.resources.files(__package__).joinpath(
             "postfix/submission_header_cleanup"
         ),
@@ -284,7 +294,7 @@ def _configure_postfix(config: Config, debug: bool = False) -> bool:
         group="root",
         mode="644",
     )
-    need_restart |= header_cleanup.changed
+    need_restart |= submission_header_cleanup.changed
 
     # Login map that 1:1 maps email address to login.
     login_map = files.put(

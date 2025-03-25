@@ -2,6 +2,9 @@
 
 ## untagged
 
+- Remove `DKIM-Signature` from incoming mails after verifying
+  ([#530](https://github.com/chatmail/server/pull/530))
+
 - Send SNI when connecting to outside servers
   ([#524](https://github.com/chatmail/server/pull/524))
 

@@ -52,6 +52,7 @@ smtps     inet  n       -       y       -       5000    smtpd
 #628       inet  n       -       y       -       -       qmqpd
 pickup    unix  n       -       y       60      1       pickup
 cleanup   unix  n       -       y       -       0       cleanup
+  -o header_checks=regexp:/etc/postfix/incoming_header_cleanup
 qmgr      unix  n       -       n       300     1       qmgr
 #qmgr     unix  n       -       n       300     1       oqmgr
 tlsmgr    unix  -       -       y       1000?   1       tlsmgr
