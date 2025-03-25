@@ -14,7 +14,7 @@ Chatmail servers are interoperable email routing machines optimized for:
 
 - **Security:** Strict TLS, DKIM and OpenPGP with metadata-minimization rules enforced.
 
-- **Reliability:** No spam or IP reputation checks to disrupt message delivery. Default per-user message rate limit is high enough for realtime chats.
+- **Reliability:** No spam or IP reputation checks, rate-limits suitable for realtime chats.
 
 - **Efficiency:** Messages are only stored for transit and removed automatically.
 
