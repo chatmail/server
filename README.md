@@ -29,7 +29,7 @@ after which the initially specified password is required
 for sending and receiving messages through them.
 
 Please see [this list of known apps and client projects](https://chatmail.at/apps.html) which offer instant onboarding on chatmail servers
-and [this list of known public 3rd party chatmail servers](https://delta.chat/en/chatmail).
+and [this list of known public 3rd party chatmail servers](https://chatmail.at/server).
 
 
 ## Minimal requirements, Prerequisites 
