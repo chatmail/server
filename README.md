@@ -7,7 +7,8 @@ Chatmail servers are interoperable email routing machines optimized for:
 
 - **Convenience:** Low friction instant onboarding
 
-- **Privacy:** No name, telephone numbers, or email required to sign-up permitting you to create unique and disposable identities. Push notification architecture is privacy-preserving. (Apple, Google, and Huawei)
+- **Privacy:** No name, phone numbers,  email required or collected 
+- **Instant:** Privacy-preserving push notifications for Apple, Google, and Huawei
 
 - **Speed:** Message delivery in well under a second.
 
