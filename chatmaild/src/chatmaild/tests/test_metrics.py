@@ -2,8 +2,15 @@ from chatmaild.metrics import main
 
 
 def test_main(tmp_path, capsys):
+    paths = []
     for x in ("ci-asllkj", "ac_12l3kj", "qweqwe", "ci-l1k2j31l2k3"):
-        tmp_path.joinpath(x).mkdir()
+        p = tmp_path.joinpath(x)
+        p.mkdir()
+        p.joinpath("cur").mkdir()
+        paths.append(p)
+
+    tmp_path.joinpath("nomailbox").mkdir()
+
     main(tmp_path)
     out, _ = capsys.readouterr()
     d = {}

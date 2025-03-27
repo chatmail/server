@@ -11,7 +11,7 @@ def main(vmail_dir=None):
     ci_accounts = 0
 
     for path in Path(vmail_dir).iterdir():
-        if not path.is_dir() or not (path / "cur").is_dir():
+        if not path.joinpath("cur").is_dir():
             continue
         accounts += 1
         if path.name[:3] in ("ci-", "ac_"):
