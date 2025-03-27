@@ -29,14 +29,14 @@ def test_reject_forged_from(maildata, gencreds, handler):
     # test that the filter lets good mail through
     to_addr = gencreds()[0]
     env.content = maildata(
-        "plain.eml", from_addr=env.mail_from, to_addr=to_addr
+        "encrypted.eml", from_addr=env.mail_from, to_addr=to_addr
     ).as_bytes()
 
     assert not handler.check_DATA(envelope=env)
 
     # test that the filter rejects forged mail
     env.content = maildata(
-        "plain.eml", from_addr="forged@c3.testrun.org", to_addr=to_addr
+        "encrypted.eml", from_addr="forged@c3.testrun.org", to_addr=to_addr
     ).as_bytes()
     error = handler.check_DATA(envelope=env)
     assert "500" in error
@@ -106,7 +106,7 @@ def test_send_rate_limiter():
             break
 
 
-def test_excempt_privacy(maildata, gencreds, handler):
+def test_cleartext_excempt_privacy(maildata, gencreds, handler):
     from_addr = gencreds()[0]
     to_addr = "privacy@testrun.org"
     handler.config.passthrough_recipients = [to_addr]
@@ -130,7 +130,22 @@ def test_excempt_privacy(maildata, gencreds, handler):
     assert "500" in handler.check_DATA(envelope=env2)
 
 
-def test_passthrough_domains(maildata, gencreds, handler):
+def test_cleartext_self_send_fails(maildata, gencreds, handler):
+    from_addr = gencreds()[0]
+    to_addr = from_addr
+
+    msg = maildata("plain.eml", from_addr=from_addr, to_addr=to_addr)
+
+    class env:
+        mail_from = from_addr
+        rcpt_tos = [to_addr]
+        content = msg.as_bytes()
+
+    res = handler.check_DATA(envelope=env)
+    assert "500 Invalid unencrypted" in res
+
+
+def test_cleartext_passthrough_domains(maildata, gencreds, handler):
     from_addr = gencreds()[0]
     to_addr = "privacy@x.y.z"
     handler.config.passthrough_recipients = ["@x.y.z"]
@@ -154,7 +169,7 @@ def test_passthrough_domains(maildata, gencreds, handler):
     assert "500" in handler.check_DATA(envelope=env2)
 
 
-def test_passthrough_senders(gencreds, handler, maildata):
+def test_cleartext_passthrough_senders(gencreds, handler, maildata):
     acc1 = gencreds()[0]
     to_addr = "recipient@something.org"
     handler.config.passthrough_senders = [acc1]
