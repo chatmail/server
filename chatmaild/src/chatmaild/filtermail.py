@@ -162,7 +162,9 @@ async def asyncmain_beforequeue(config, mode):
         port = config.filtermail_smtp_port
     else:
         port = config.filtermail_smtp_port_incoming
-    Controller(BeforeQueueHandler(config, mode), hostname="127.0.0.1", port=port).start()
+    Controller(
+        BeforeQueueHandler(config, mode), hostname="127.0.0.1", port=port
+    ).start()
 
 
 def recipient_matches_passthrough(recipient, passthrough_recipients):
@@ -202,8 +204,11 @@ class BeforeQueueHandler:
         if self.mode == "incoming":
             # the smtp daemon on reinject_port_incoming gives it to dkim milter
             # which looks at source address to determine whether to verify or sign
-            client = SMTPClient("localhost", self.config.postfix_reinject_port_incoming,
-                                source_address=("127.0.0.2", 0))
+            client = SMTPClient(
+                "localhost",
+                self.config.postfix_reinject_port_incoming,
+                source_address=("127.0.0.2", 0),
+            )
         elif self.mode == "outgoing":
             client = SMTPClient("localhost", self.config.postfix_reinject_port)
 
