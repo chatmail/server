@@ -2,6 +2,9 @@
 
 ## untagged
 
+- Disable NSD so it doesn't block port 53
+  ([#537](https://github.com/chatmail/server/pull/537))
+
 - Limit the bind for the HTTPS server on 8443 to 127.0.0.1 
   ([#522](https://github.com/chatmail/server/pull/522))
   ([#532](https://github.com/chatmail/server/pull/532))
