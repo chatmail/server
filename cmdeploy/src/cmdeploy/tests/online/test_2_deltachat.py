@@ -169,13 +169,11 @@ def test_echobot(cmfactory, chatmail_config, lp, sshdomain):
     sshexec = SSHExec(sshdomain)
     command = "cat /var/lib/echobot/invite-link.txt"
     echo_invite_link = sshexec(call=rshell.shell, kwargs=dict(command=command))
-    ac.qr_setup_contact(echo_invite_link)
+    chat = ac.qr_setup_contact(echo_invite_link)
     ac._evtracker.wait_securejoin_joiner_progress(1000)
 
-
     # send message and check it gets replied back
-    lp.sec(f"Send message to echo@{chatmail_config.mail_domain}")
-    chat = ac.create_chat(f"echo@{chatmail_config.mail_domain}")
+    lp.sec(f"Send message to echobot")
     text = "hi, I hope you text me back"
     chat.send_text(text)
     lp.sec("Wait for reply from echobot")
