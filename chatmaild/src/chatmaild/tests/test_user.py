@@ -40,3 +40,17 @@ def test_no_mailboxes_dir(testaddr, example_config, tmp_path):
     user.set_password("someeqkjwelkqwjleqwe")
     user.set_last_login_timestamp(100000)
     assert user.get_last_login_timestamp() == 86400
+
+
+def test_set_get_cleartext_flag(testaddr, example_config, tmp_path):
+    p = tmp_path.joinpath("a", "mailboxes")
+    example_config.mailboxes_dir = p
+
+    user = example_config.get_user(testaddr)
+    user.set_password("someeqkjwelkqwjleqwe")
+    user.set_last_login_timestamp(100000)
+    assert user.get_last_login_timestamp() == 86400
+
+    assert not user.is_incoming_cleartext_ok()
+    user.allow_incoming_cleartext()
+    assert user.is_incoming_cleartext_ok()

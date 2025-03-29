@@ -2,6 +2,13 @@
 
 ## untagged
 
+- Enforce end-to-end encryption for incoming messages 
+  All new address folders now get a enforceE2EE file 
+  which prohibits incoming cleartext messages from other domains. 
+  If the file does not exist (for all existing accounts) 
+  incoming cleartext messages are accepted. 
+  ([#538](https://github.com/chatmail/server/pull/538))
+
 - Enforce end-to-end encryption between local addresses 
   ([#535](https://github.com/chatmail/server/pull/535))
 

@@ -13,6 +13,7 @@ class User:
         self.maildir = maildir
         self.addr = addr
         self.password_path = password_path
+        self.enforce_E2EE_path = maildir.joinpath("enforceE2EE")
         self.uid = uid
         self.gid = gid
 
@@ -35,6 +36,13 @@ class User:
         home = str(self.maildir)
         return dict(addr=self.addr, home=home, uid=self.uid, gid=self.gid, password=pw)
 
+    def is_incoming_cleartext_ok(self):
+        return not self.enforce_E2EE_path.exists()
+
+    def allow_incoming_cleartext(self):
+        if self.enforce_E2EE_path.exists():
+            self.enforce_E2EE_path.unlink()
+
     def set_password(self, enc_password):
         """Set the specified password for this user.
 
@@ -50,6 +58,7 @@ class User:
             if not self.addr.startswith("echo@"):
                 logging.error(f"could not write password for: {self.addr}")
                 raise
+        self.enforce_E2EE_path.touch()
 
     def set_last_login_timestamp(self, timestamp):
         """Track login time with daily granularity

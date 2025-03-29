@@ -246,6 +246,10 @@ class BeforeQueueHandler:
         for recipient in envelope.rcpt_tos:
             if recipient_matches_passthrough(recipient, passthrough_recipients):
                 continue
+            p = self.config.mailboxes_dir.joinpath(recipient, "inclear")
+            if p.exists():
+                continue
+
             print("Rejected unencrypted mail.", file=sys.stderr)
             return "500 Invalid unencrypted mail"
 

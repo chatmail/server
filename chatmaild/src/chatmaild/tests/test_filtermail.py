@@ -130,9 +130,9 @@ def test_cleartext_excempt_privacy(maildata, gencreds, handler):
     assert "500" in handler.check_DATA(envelope=env2)
 
 
-def test_cleartext_self_send_fails(maildata, gencreds, handler):
+def test_cleartext_send_fails(maildata, gencreds, handler):
     from_addr = gencreds()[0]
-    to_addr = from_addr
+    to_addr = gencreds()[0]
 
     msg = maildata("plain.eml", from_addr=from_addr, to_addr=to_addr)
 
@@ -143,6 +143,11 @@ def test_cleartext_self_send_fails(maildata, gencreds, handler):
 
     res = handler.check_DATA(envelope=env)
     assert "500 Invalid unencrypted" in res
+
+    p = handler.config.mailboxes_dir.joinpath(to_addr)
+    p.mkdir()
+    p.joinpath("inclear").touch()
+    assert not handler.check_DATA(envelope=env)
 
 
 def test_cleartext_passthrough_domains(maildata, gencreds, handler):
