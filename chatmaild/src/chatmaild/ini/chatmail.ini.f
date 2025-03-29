@@ -46,11 +46,13 @@ passthrough_recipients = xstore@testrun.org
 # Deployment Details
 #
 
-# where the filtermail SMTP service listens
+# SMTP outgoing filtermail and reinjection 
 filtermail_smtp_port = 10080
-
-# postfix accepts on the localhost reinject SMTP port
 postfix_reinject_port = 10025
+
+# SMTP incoming filtermail and reinjection 
+filtermail_smtp_port_incoming = 10081
+postfix_reinject_port_incoming = 10026
 
 # if set to "True" IPv6 is disabled
 disable_ipv6 = False

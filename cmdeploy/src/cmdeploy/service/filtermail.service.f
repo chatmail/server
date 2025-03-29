@@ -1,8 +1,8 @@
 [Unit]
-Description=Chatmail Postfix before queue filter
+Description=outgoing Chatmail Postfix before queue filter 
 
 [Service]
-ExecStart={execpath} {config_path}
+ExecStart={execpath} {config_path} outgoing
 Restart=always
 RestartSec=30
 User=filtermail

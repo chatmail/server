@@ -18,7 +18,7 @@ def maildomain():
 @pytest.fixture
 def handler(make_config, maildomain):
     config = make_config(maildomain)
-    return BeforeQueueHandler(config)
+    return BeforeQueueHandler(config, mode="outgoing")
 
 
 def test_reject_forged_from(maildata, gencreds, handler):
