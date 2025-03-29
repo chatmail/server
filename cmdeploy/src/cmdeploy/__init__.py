@@ -588,6 +588,12 @@ def deploy_chatmail(config_path: Path, disable_mail: bool) -> None:
     # Run local DNS resolver `unbound`.
     # `resolvconf` takes care of setting up /etc/resolv.conf
     # to use 127.0.0.1 as the resolver.
+    systemd.service(
+        name="Disable nsd if it's running, so it doesn't block port 53",
+        service="nsd.service",
+        running=False,
+        enabled=False,
+    )
     apt.packages(
         name="Install unbound",
         packages=["unbound", "unbound-anchor", "dnsutils"],
