@@ -1,5 +1,5 @@
 [Unit]
-Description=outgoing Chatmail Postfix before queue filter 
+Description=Outgoing Chatmail Postfix before queue filter
 
 [Service]
 ExecStart={execpath} {config_path} outgoing
