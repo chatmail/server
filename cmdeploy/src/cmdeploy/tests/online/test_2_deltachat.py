@@ -7,6 +7,9 @@ import imap_tools
 import pytest
 import requests
 
+from cmdeploy.remote import rshell
+from cmdeploy.sshexec import SSHExec
+
 
 @pytest.fixture
 def imap_mailbox(cmfactory):
@@ -179,9 +182,18 @@ def test_hide_senders_ip_address(cmfactory):
     assert public_ip not in msg.obj.as_string()
 
 
-def test_echobot(cmfactory, chatmail_config, lp):
+def test_echobot(cmfactory, chatmail_config, lp, sshdomain):
     ac = cmfactory.get_online_accounts(1)[0]
 
+    # establish contact with echobot
+    sshexec = SSHExec(sshdomain)
+    command = "cat /var/lib/echobot/invite-link.txt"
+    echo_invite_link = sshexec(call=rshell.shell, kwargs=dict(command=command))
+    ac.qr_setup_contact(echo_invite_link)
+    ac._evtracker.wait_securejoin_joiner_progress(1000)
+
+
+    # send message and check it gets replied back
     lp.sec(f"Send message to echo@{chatmail_config.mail_domain}")
     chat = ac.create_chat(f"echo@{chatmail_config.mail_domain}")
     text = "hi, I hope you text me back"

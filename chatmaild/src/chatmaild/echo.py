@@ -8,6 +8,7 @@ import logging
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 from deltachat_rpc_client import Bot, DeltaChat, EventType, Rpc, events
 
@@ -96,6 +97,10 @@ def main():
 
         if not bot.is_configured():
             bot.configure(addr, password)
+
+        # write invite link to working directory
+        invitelink = bot.account.get_qr_code()
+        Path("invite-link.txt").write_text(invitelink)
 
         bot.run_forever()
 
