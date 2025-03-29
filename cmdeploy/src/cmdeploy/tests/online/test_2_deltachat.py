@@ -1,11 +1,13 @@
 import ipaddress
-import random
 import re
 import time
 
 import imap_tools
 import pytest
 import requests
+
+from cmdeploy.remote import rshell
+from cmdeploy.sshexec import SSHExec
 
 
 @pytest.fixture
@@ -54,22 +56,23 @@ class TestEndToEndDeltaChat:
         """Test that a DC account can send a message to a second DC account
         on the same chat-mail instance."""
         ac1, ac2 = cmfactory.get_online_accounts(2)
-        chat = cmfactory.get_accepted_chat(ac1, ac2)
-
-        lp.sec("ac1: prepare and send text message to ac2")
+        chat = cmfactory.get_protected_chat(ac1, ac2)
         chat.send_text("message0")
 
         lp.sec("wait for ac2 to receive message")
         msg2 = ac2._evtracker.wait_next_incoming_message()
         assert msg2.text == "message0"
 
-    @pytest.mark.slow
-    def test_exceed_quota(self, cmfactory, lp, tmpdir, remote, chatmail_config):
+    def test_exceed_quota(
+        self, cmfactory, lp, tmpdir, remote, chatmail_config, sshdomain
+    ):
         """This is a very slow test as it needs to upload >100MB of mail data
         before quota is exceeded, and thus depends on the speed of the upload.
         """
         ac1, ac2 = cmfactory.get_online_accounts(2)
-        chat = cmfactory.get_accepted_chat(ac1, ac2)
+        chat = cmfactory.get_protected_chat(ac1, ac2)
+
+        user = ac2.get_config("configured_addr")
 
         def parse_size_limit(limit: str) -> int:
             """Parse a size limit and return the number of bytes as integer.
@@ -82,49 +85,27 @@ class TestEndToEndDeltaChat:
             return int(float(number) * units[unit])
 
         quota = parse_size_limit(chatmail_config.max_mailbox_size)
-        attachsize = 1 * 1024 * 1024
-        num_to_send = quota // attachsize + 2
-        lp.sec(f"ac1: send {num_to_send} large files to ac2")
-        lp.indent(f"per-user quota is assumed to be: {quota / (1024 * 1024)}MB")
-        alphanumeric = "abcdefghijklmnopqrstuvwxyz1234567890"
-        msgs = []
-        for i in range(num_to_send):
-            attachment = tmpdir / f"attachment{i}"
-            data = "".join(random.choice(alphanumeric) for i in range(1024))
-            with open(attachment, "w+") as f:
-                for j in range(attachsize // len(data)):
-                    f.write(data)
 
-            msg = chat.send_file(str(attachment))
-            msgs.append(msg)
-            lp.indent(f"Sent out msg {i}, size {attachsize / (1024 * 1024)}MB")
+        lp.sec(f"filling remote inbox for {user}")
+        fn = f"7743102289.M843172P2484002.c20,S={quota},W=2398:2,"
+        path = chatmail_config.mailboxes_dir.joinpath(user, "cur", fn)
+        sshexec = SSHExec(sshdomain)
+        sshexec(call=rshell.write_numbytes, kwargs=dict(path=str(path), num=120))
+        res = sshexec(call=rshell.dovecot_recalc_quota, kwargs=dict(user=user))
+        assert res["percent"] >= 100
 
-        lp.sec("ac2: check messages are arriving until quota is reached")
+        lp.sec("ac2: check quota is triggered")
 
-        addr = ac2.get_config("addr").lower()
-        saved_ok = 0
+        starting = True
         for line in remote.iter_output("journalctl -n0 -f -u dovecot"):
-            if addr not in line:
+            if starting:
+                chat.send_text("hello")
+                starting = False
+            if user not in line:
                 # print(line)
                 continue
-            if "quota" in line:
-                if "quota exceeded" in line:
-                    if saved_ok < num_to_send // 2:
-                        pytest.fail(
-                            f"quota exceeded too early: after {saved_ok} messages already"
-                        )
-                    lp.indent("good, message sending failed because quota was exceeded")
-                    return
-            if (
-                "stored mail into mailbox 'inbox'" in line
-                or "saved mail to inbox" in line
-            ):
-                saved_ok += 1
-                print(f"{saved_ok}: {line}")
-                if saved_ok >= num_to_send:
-                    break
-
-        pytest.fail("sending succeeded although messages should exceed quota")
+            if "quota exceeded" in line:
+                return
 
     def test_securejoin(self, cmfactory, lp, maildomain2):
         ac1 = cmfactory.new_online_configuring_account(cache=False)
@@ -172,7 +153,7 @@ def test_hide_senders_ip_address(cmfactory):
     assert ipaddress.ip_address(public_ip)
 
     user1, user2 = cmfactory.get_online_accounts(2)
-    chat = cmfactory.get_accepted_chat(user1, user2)
+    chat = cmfactory.get_protected_chat(user1, user2)
 
     chat.send_text("testing submission header cleanup")
     user2._evtracker.wait_next_incoming_message()
@@ -181,11 +162,18 @@ def test_hide_senders_ip_address(cmfactory):
     assert public_ip not in msg.obj.as_string()
 
 
-def test_echobot(cmfactory, chatmail_config, lp):
+def test_echobot(cmfactory, chatmail_config, lp, sshdomain):
     ac = cmfactory.get_online_accounts(1)[0]
 
-    lp.sec(f"Send message to echo@{chatmail_config.mail_domain}")
-    chat = ac.create_chat(f"echo@{chatmail_config.mail_domain}")
+    # establish contact with echobot
+    sshexec = SSHExec(sshdomain)
+    command = "cat /var/lib/echobot/invite-link.txt"
+    echo_invite_link = sshexec(call=rshell.shell, kwargs=dict(command=command))
+    chat = ac.qr_setup_contact(echo_invite_link)
+    ac._evtracker.wait_securejoin_joiner_progress(1000)
+
+    # send message and check it gets replied back
+    lp.sec(f"Send message to echobot")
     text = "hi, I hope you text me back"
     chat.send_text(text)
     lp.sec("Wait for reply from echobot")

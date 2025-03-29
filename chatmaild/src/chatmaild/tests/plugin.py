@@ -72,9 +72,8 @@ def maildata(request):
     def maildata(name, from_addr, to_addr, subject="[...]"):
         # Using `.read_bytes().decode()` instead of `.read_text()` to preserve newlines.
         data = datadir.joinpath(name).read_bytes().decode()
-
         text = data.format(from_addr=from_addr, to_addr=to_addr, subject=subject)
-        return BytesParser(policy=policy.default).parsebytes(text.encode())
+        return BytesParser(policy=policy.SMTP).parsebytes(text.encode())
 
     return maildata
 
