@@ -157,9 +157,12 @@ def check_encrypted(message):
     return True
 
 
-async def asyncmain_beforequeue(config):
-    port = config.filtermail_smtp_port
-    Controller(BeforeQueueHandler(config), hostname="127.0.0.1", port=port).start()
+async def asyncmain_beforequeue(config, mode):
+    if mode == "outgoing":
+        port = config.filtermail_smtp_port
+    else:
+        port = config.filtermail_smtp_port_incoming
+    Controller(BeforeQueueHandler(config, mode), hostname="127.0.0.1", port=port).start()
 
 
 def recipient_matches_passthrough(recipient, passthrough_recipients):
@@ -172,8 +175,9 @@ def recipient_matches_passthrough(recipient, passthrough_recipients):
 
 
 class BeforeQueueHandler:
-    def __init__(self, config):
+    def __init__(self, config, mode):
         self.config = config
+        self.mode = mode
         self.send_rate_limiter = SendRateLimiter()
 
     async def handle_MAIL(self, server, session, envelope, address, mail_options):
@@ -195,7 +199,14 @@ class BeforeQueueHandler:
         if error:
             return error
         logging.info("re-injecting the mail that passed checks")
-        client = SMTPClient("localhost", self.config.postfix_reinject_port)
+        if self.mode == "incoming":
+            # the smtp daemon on reinject_port_incoming gives it to dkim milter
+            # which looks at source address to determine whether to verify or sign
+            client = SMTPClient("localhost", self.config.postfix_reinject_port_incoming,
+                                source_address=("127.0.0.2", 0))
+        elif self.mode == "outgoing":
+            client = SMTPClient("localhost", self.config.postfix_reinject_port)
+
         client.sendmail(
             envelope.mail_from, envelope.rcpt_tos, envelope.original_content
         )
@@ -250,11 +261,13 @@ class SendRateLimiter:
 
 def main():
     args = sys.argv[1:]
-    assert len(args) == 1
+    assert len(args) == 2
     config = read_config(args[0])
+    mode = args[1]
     logging.basicConfig(level=logging.WARN)
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    task = asyncmain_beforequeue(config)
+    assert mode in ["incoming", "outgoing"]
+    task = asyncmain_beforequeue(config, mode)
     loop.create_task(task)
     loop.run_forever()
