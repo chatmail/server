@@ -62,7 +62,7 @@ def sshdomain(maildomain):
 def maildomain2():
     domain = os.environ.get("CHATMAIL_DOMAIN2")
     if not domain:
-        pytest.skip("set CHATMAIL_DOMAIN2 to second chatmail server (FQDN form)")
+        pytest.skip("set CHATMAIL_DOMAIN2 to a second chatmail server")
     return domain
 
 
