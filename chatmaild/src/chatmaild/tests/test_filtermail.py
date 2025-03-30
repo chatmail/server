@@ -1,7 +1,8 @@
 import pytest
 
 from chatmaild.filtermail import (
-    BeforeQueueHandler,
+    IncomingBeforeQueueHandler,
+    OutgoingBeforeQueueHandler,
     SendRateLimiter,
     check_armored_payload,
     check_encrypted,
@@ -18,7 +19,13 @@ def maildomain():
 @pytest.fixture
 def handler(make_config, maildomain):
     config = make_config(maildomain)
-    return BeforeQueueHandler(config, mode="outgoing")
+    return OutgoingBeforeQueueHandler(config)
+
+
+@pytest.fixture
+def inhandler(make_config, maildomain):
+    config = make_config(maildomain)
+    return IncomingBeforeQueueHandler(config)
 
 
 def test_reject_forged_from(maildata, gencreds, handler):
@@ -144,10 +151,38 @@ def test_cleartext_send_fails(maildata, gencreds, handler):
     res = handler.check_DATA(envelope=env)
     assert "500 Invalid unencrypted" in res
 
-    p = handler.config.mailboxes_dir.joinpath(to_addr)
+
+def test_cleartext_incoming_fails(maildata, gencreds, inhandler):
+    from_addr = gencreds()[0]
+    to_addr = gencreds()[0]
+
+    msg = maildata("plain.eml", from_addr=from_addr, to_addr=to_addr)
+
+    class env:
+        mail_from = from_addr
+        rcpt_tos = [to_addr]
+        content = msg.as_bytes()
+
+    res = inhandler.check_DATA(envelope=env)
+    assert "500 Invalid unencrypted" in res
+    p = inhandler.config.mailboxes_dir.joinpath(to_addr)
     p.mkdir()
     p.joinpath("inclear").touch()
-    assert not handler.check_DATA(envelope=env)
+    assert not inhandler.check_DATA(envelope=env)
+
+
+def test_cleartext_incoming_mailer_daemon(maildata, gencreds, inhandler):
+    from_addr = "mailer-daemon@example.org"
+    to_addr = gencreds()[0]
+
+    msg = maildata("mailer-daemon.eml", from_addr=from_addr, to_addr=to_addr)
+
+    class env:
+        mail_from = from_addr
+        rcpt_tos = [to_addr]
+        content = msg.as_bytes()
+
+    assert not inhandler.check_DATA(envelope=env)
 
 
 def test_cleartext_passthrough_domains(maildata, gencreds, handler):

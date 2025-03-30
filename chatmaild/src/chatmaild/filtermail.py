@@ -161,11 +161,11 @@ def check_encrypted(message):
 async def asyncmain_beforequeue(config, mode):
     if mode == "outgoing":
         port = config.filtermail_smtp_port
+        handler = OutgoingBeforeQueueHandler(config)
     else:
         port = config.filtermail_smtp_port_incoming
-    HackedController(
-        BeforeQueueHandler(config, mode), hostname="127.0.0.1", port=port
-    ).start()
+        handler = IncomingBeforeQueueHandler(config)
+    HackedController(handler, hostname="127.0.0.1", port=port).start()
 
 
 def recipient_matches_passthrough(recipient, passthrough_recipients):
@@ -191,10 +191,9 @@ class SMTPDiscardRCPTO_options(SMTP):
         return super()._getparams(params)
 
 
-class BeforeQueueHandler:
-    def __init__(self, config, mode):
+class OutgoingBeforeQueueHandler:
+    def __init__(self, config):
         self.config = config
-        self.mode = mode
         self.send_rate_limiter = SendRateLimiter()
 
     async def handle_MAIL(self, server, session, envelope, address, mail_options):
@@ -216,17 +215,7 @@ class BeforeQueueHandler:
         if error:
             return error
         logging.info("re-injecting the mail that passed checks")
-        if self.mode == "incoming":
-            # the smtp daemon on reinject_port_incoming gives it to dkim milter
-            # which looks at source address to determine whether to verify or sign
-            client = SMTPClient(
-                "localhost",
-                self.config.postfix_reinject_port_incoming,
-                source_address=("127.0.0.2", 0),
-            )
-        elif self.mode == "outgoing":
-            client = SMTPClient("localhost", self.config.postfix_reinject_port)
-
+        client = SMTPClient("localhost", self.config.postfix_reinject_port)
         client.sendmail(
             envelope.mail_from, envelope.rcpt_tos, envelope.original_content
         )
@@ -246,9 +235,9 @@ class BeforeQueueHandler:
             return f"500 Invalid FROM <{from_addr!r}> for <{envelope.mail_from!r}>"
 
         if mail_encrypted:
-            print("Filtering encrypted mail.", file=sys.stderr)
+            print("Outgoing Filtering encrypted mail.", file=sys.stderr)
         else:
-            print("Filtering unencrypted mail.", file=sys.stderr)
+            print("Outgoing unencrypted mail.", file=sys.stderr)
 
         if envelope.mail_from in self.config.passthrough_senders:
             return
@@ -263,6 +252,57 @@ class BeforeQueueHandler:
                 continue
             p = self.config.mailboxes_dir.joinpath(recipient, "inclear")
             if p.exists():
+                continue
+
+            print("Rejected unencrypted mail.", file=sys.stderr)
+            return "500 Invalid unencrypted mail"
+
+
+class IncomingBeforeQueueHandler:
+    def __init__(self, config):
+        self.config = config
+
+    async def handle_DATA(self, server, session, envelope):
+        logging.info("handle_DATA before-queue")
+        error = self.check_DATA(envelope)
+        if error:
+            return error
+        logging.info("re-injecting the mail that passed checks")
+
+        # the smtp daemon on reinject_port_incoming gives it to dkim milter
+        # which looks at source address to determine whether to verify or sign
+        client = SMTPClient(
+            "localhost",
+            self.config.postfix_reinject_port_incoming,
+            source_address=("127.0.0.2", 0),
+        )
+        client.sendmail(
+            envelope.mail_from, envelope.rcpt_tos, envelope.original_content
+        )
+        return "250 OK"
+
+    def check_DATA(self, envelope):
+        """the central filtering function for e-mails."""
+        logging.info(f"Processing DATA message from {envelope.mail_from}")
+
+        message = BytesParser(policy=policy.default).parsebytes(envelope.content)
+        mail_encrypted = check_encrypted(message)
+
+        if mail_encrypted or is_securejoin(message):
+            print("Incoming: Filtering encrypted mail.", file=sys.stderr)
+            return
+
+        print("Incoming: Filtering unencrypted mail.", file=sys.stderr)
+
+        # we want cleartext mailer-daemon messages to pass through
+        # chatmail core will typically not display them as normal messages
+        if message.get("auto-submitted"):
+            _, from_addr = parseaddr(message.get("from").strip())
+            if from_addr.lower().startswith("mailer-daemon@"):
+                return
+
+        for recipient in envelope.rcpt_tos:
+            if self.config.mailboxes_dir.joinpath(recipient, "inclear").exists():
                 continue
 
             print("Rejected unencrypted mail.", file=sys.stderr)

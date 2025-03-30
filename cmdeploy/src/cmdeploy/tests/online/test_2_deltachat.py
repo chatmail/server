@@ -173,7 +173,7 @@ def test_echobot(cmfactory, chatmail_config, lp, sshdomain):
     ac._evtracker.wait_securejoin_joiner_progress(1000)
 
     # send message and check it gets replied back
-    lp.sec(f"Send message to echobot")
+    lp.sec("Send message to echobot")
     text = "hi, I hope you text me back"
     chat.send_text(text)
     lp.sec("Wait for reply from echobot")
