@@ -13,7 +13,7 @@ class User:
         self.maildir = maildir
         self.addr = addr
         self.password_path = password_path
-        self.enforce_E2EE_path = maildir.joinpath("enforceE2EE")
+        self.enforce_E2EE_path = maildir.joinpath("enforceE2EEincoming")
         self.uid = uid
         self.gid = gid
 
