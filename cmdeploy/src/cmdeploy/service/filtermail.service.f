@@ -5,7 +5,7 @@ Description=Outgoing Chatmail Postfix before queue filter
 ExecStart={execpath} {config_path} outgoing
 Restart=always
 RestartSec=30
-User=filtermail
+User=vmail
 
 [Install]
 WantedBy=multi-user.target

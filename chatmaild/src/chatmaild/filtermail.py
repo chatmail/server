@@ -11,6 +11,7 @@ from email.utils import parseaddr
 from smtplib import SMTP as SMTPClient
 
 from aiosmtpd.controller import Controller
+from aiosmtpd.smtp import SMTP
 
 from .config import read_config
 
@@ -162,7 +163,7 @@ async def asyncmain_beforequeue(config, mode):
         port = config.filtermail_smtp_port
     else:
         port = config.filtermail_smtp_port_incoming
-    Controller(
+    HackedController(
         BeforeQueueHandler(config, mode), hostname="127.0.0.1", port=port
     ).start()
 
@@ -174,6 +175,20 @@ def recipient_matches_passthrough(recipient, passthrough_recipients):
         if addr[0] == "@" and recipient.endswith(addr):
             return True
     return False
+
+
+class HackedController(Controller):
+    def factory(self):
+        return SMTPDiscardRCPTO_options(self.handler, **self.SMTP_kwargs)
+
+
+class SMTPDiscardRCPTO_options(SMTP):
+    def _getparams(self, params):
+        # aiosmtpd's SMTP daemon fails to handle a request if there are RCPT TO options
+        # We just ignore them for our incoming filtermail purposes
+        if len(params) == 1 and params[0].startswith("ORCPT"):
+            return {}
+        return super()._getparams(params)
 
 
 class BeforeQueueHandler:
@@ -279,4 +294,5 @@ def main():
     assert mode in ["incoming", "outgoing"]
     task = asyncmain_beforequeue(config, mode)
     loop.create_task(task)
+    logging.info("entering serving loop")
     loop.run_forever()
