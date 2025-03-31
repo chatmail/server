@@ -154,7 +154,7 @@ def test_cleartext_send_fails(maildata, gencreds, handler):
 
 def test_cleartext_incoming_fails(maildata, gencreds, inhandler):
     from_addr = gencreds()[0]
-    to_addr = gencreds()[0]
+    to_addr, password = gencreds()
 
     msg = maildata("plain.eml", from_addr=from_addr, to_addr=to_addr)
 
@@ -163,11 +163,12 @@ def test_cleartext_incoming_fails(maildata, gencreds, inhandler):
         rcpt_tos = [to_addr]
         content = msg.as_bytes()
 
+    user = inhandler.config.get_user(to_addr)
+    user.set_password(password)
     res = inhandler.check_DATA(envelope=env)
     assert "500 Invalid unencrypted" in res
-    p = inhandler.config.mailboxes_dir.joinpath(to_addr)
-    p.mkdir()
-    p.joinpath("inclear").touch()
+
+    user.allow_incoming_cleartext()
     assert not inhandler.check_DATA(envelope=env)
 
 

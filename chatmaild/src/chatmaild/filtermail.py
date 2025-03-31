@@ -234,24 +234,19 @@ class OutgoingBeforeQueueHandler:
         if envelope.mail_from.lower() != from_addr.lower():
             return f"500 Invalid FROM <{from_addr!r}> for <{envelope.mail_from!r}>"
 
-        if mail_encrypted:
+        if mail_encrypted or is_securejoin(message):
             print("Outgoing Filtering encrypted mail.", file=sys.stderr)
-        else:
-            print("Outgoing unencrypted mail.", file=sys.stderr)
-
-        if envelope.mail_from in self.config.passthrough_senders:
             return
 
-        if mail_encrypted or is_securejoin(message):
+        print("Outgoing Filtering unencrypted mail.", file=sys.stderr)
+
+        if envelope.mail_from in self.config.passthrough_senders:
             return
 
         passthrough_recipients = self.config.passthrough_recipients
 
         for recipient in envelope.rcpt_tos:
             if recipient_matches_passthrough(recipient, passthrough_recipients):
-                continue
-            p = self.config.mailboxes_dir.joinpath(recipient, "inclear")
-            if p.exists():
                 continue
 
             print("Rejected unencrypted mail.", file=sys.stderr)
@@ -302,7 +297,8 @@ class IncomingBeforeQueueHandler:
                 return
 
         for recipient in envelope.rcpt_tos:
-            if self.config.mailboxes_dir.joinpath(recipient, "inclear").exists():
+            print(f"filtering recipient: {recipient}")
+            if self.config.get_user(recipient).is_incoming_cleartext_ok():
                 continue
 
             print("Rejected unencrypted mail.", file=sys.stderr)
