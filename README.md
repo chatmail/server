@@ -263,9 +263,8 @@ Fresh chatmail server addresses have a mailbox directory that contains:
   If you modify the password file manually, you effectively block the user. 
 
 - `enforceE2EEincoming` is a default-created file with each address. 
-  It's presence means that this chatmail address rejects incoming cleartext messages.
-  The absence of the `enforceE2EEincoming` file means that the address accepts
-  incoming cleartext messages. 
+  If present the file indicates that this chatmail address rejects incoming cleartext messages.
+  If absent the address accepts incoming cleartext messages. 
 
 - `dovecot*`, `cur`, `new` and `tmp` represent IMAP/mailbox state. 
   If the address is only used by one device, the Maildir directories
