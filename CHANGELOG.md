@@ -2,9 +2,11 @@
 
 ## untagged
 
-- Enforce end-to-end encryption for incoming messages 
+- Enforce end-to-end encryption for incoming messages. 
   New user address mailboxes now get a `enforceE2EEincoming` file 
   which prohibits incoming cleartext messages from other domains. 
+  An outside MTA trying to submit a cleartext message will 
+  get a "523 Encryption Needed" response, see RFC5248. 
   If the file does not exist (as it the case for all existing accounts) 
   incoming cleartext messages are accepted. 
   ([#538](https://github.com/chatmail/server/pull/538))

@@ -15,6 +15,8 @@ from aiosmtpd.smtp import SMTP
 
 from .config import read_config
 
+ENCRYPTION_NEEDED_523 = "523 Encryption Needed: Invalid Unencrypted Mail"
+
 
 def check_openpgp_payload(payload: bytes):
     """Checks the OpenPGP payload.
@@ -250,7 +252,7 @@ class OutgoingBeforeQueueHandler:
                 continue
 
             print("Rejected unencrypted mail.", file=sys.stderr)
-            return "500 Invalid unencrypted mail"
+            return ENCRYPTION_NEEDED_523
 
 
 class IncomingBeforeQueueHandler:
@@ -302,7 +304,7 @@ class IncomingBeforeQueueHandler:
                 continue
 
             print("Rejected unencrypted mail.", file=sys.stderr)
-            return "500 Invalid unencrypted mail"
+            return ENCRYPTION_NEEDED_523
 
 
 class SendRateLimiter:

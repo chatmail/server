@@ -134,7 +134,7 @@ def test_cleartext_excempt_privacy(maildata, gencreds, handler):
         rcpt_tos = [to_addr, false_to]
         content = msg.as_bytes()
 
-    assert "500" in handler.check_DATA(envelope=env2)
+    assert "523" in handler.check_DATA(envelope=env2)
 
 
 def test_cleartext_send_fails(maildata, gencreds, handler):
@@ -149,7 +149,7 @@ def test_cleartext_send_fails(maildata, gencreds, handler):
         content = msg.as_bytes()
 
     res = handler.check_DATA(envelope=env)
-    assert "500 Invalid unencrypted" in res
+    assert "523 Encryption Needed" in res
 
 
 def test_cleartext_incoming_fails(maildata, gencreds, inhandler):
@@ -166,7 +166,7 @@ def test_cleartext_incoming_fails(maildata, gencreds, inhandler):
     user = inhandler.config.get_user(to_addr)
     user.set_password(password)
     res = inhandler.check_DATA(envelope=env)
-    assert "500 Invalid unencrypted" in res
+    assert "523 Encryption Needed" in res
 
     user.allow_incoming_cleartext()
     assert not inhandler.check_DATA(envelope=env)
@@ -207,7 +207,7 @@ def test_cleartext_passthrough_domains(maildata, gencreds, handler):
         rcpt_tos = [to_addr, false_to]
         content = msg.as_bytes()
 
-    assert "500" in handler.check_DATA(envelope=env2)
+    assert "523" in handler.check_DATA(envelope=env2)
 
 
 def test_cleartext_passthrough_senders(gencreds, handler, maildata):
