@@ -1,20 +1,23 @@
 
 <img width="800px" src="www/src/collage-top.png"/>
 
-# Chatmail servers for secure instant messaging 
+# Chatmail servers for end-to-end encrypted instant messaging 
 
-Chatmail servers are interoperable email routing machines optimized for:
+Chatmail servers are interoperable e-mail routing machines optimized for 
 
 - **Convenience:** Low friction instant onboarding
 
 - **Privacy:** No name, phone numbers,  email required or collected 
+
+- **End-to-End Encryption enforced**: only OpenPGP messages with metadata minimization allowed 
+
 - **Instant:** Privacy-preserving push notifications for Apple, Google, and Huawei
 
 - **Speed:** Message delivery in well under a second.
 
-- **Security:** Strict TLS, DKIM and OpenPGP with metadata-minimization rules enforced.
+- **Transport Security:** Strict TLS and DKIM enforced. 
 
-- **Reliability:** No spam or IP reputation checks, rate-limits suitable for realtime chats.
+- **Reliability:** No spam or IP reputation checks; rate-limits are suitable for realtime chats.
 
 - **Efficiency:** Messages are only stored for transit and removed automatically.
 
@@ -191,9 +194,9 @@ A short overview:
   to authenticate users
   to send mails for them.
 
-- [`filtermail`](https://github.com/chatmail/server/blob/main/chatmaild/src/chatmaild/filtermail.py) prevents
-  unencrypted email from leaving the chatmail service
-  and is integrated into Postfix's outbound mail pipelines.
+- [`filtermail`](https://github.com/chatmail/server/blob/main/chatmaild/src/chatmaild/filtermail.py) 
+  prevents unencrypted email from leaving or entering the chatmail service
+  and is integrated into Postfix's outbound and inbound mail pipelines.
 
 - [`chatmail-metadata`](https://github.com/chatmail/server/blob/main/chatmaild/src/chatmaild/metadata.py) is contacted by a
   [dovecot lua script](https://github.com/chatmail/server/blob/main/cmdeploy/src/cmdeploy/dovecot/push_notification.lua)
@@ -237,7 +240,6 @@ by the according markdown `.md` file in the `www/src` directory.
 
 ### Refining the web pages
 
-
 ```
 scripts/cmdeploy webdev
 ```
@@ -251,6 +253,24 @@ This starts a local live development cycle for chatmail web pages:
   and generating HTML files and copying assets to the `www/build` directory.
 
 - Starts a browser window automatically where you can "refresh" as needed.
+
+## Mailbox directory layout
+
+Fresh chatmail server addresses have a mailbox directory that contains: 
+
+- a `password` file with the salted password required for authenticating
+  whether a login may use the address to send/receive messages. 
+  If you modify the password file manually, you effectively block the user. 
+
+- `enforceE2EEincoming` is a default-created file with each address. 
+  It's presence means that this chatmail address rejects incoming cleartext messages.
+  The absence of the `enforceE2EEincoming` file means that the address accepts
+  incoming cleartext messages. 
+
+- `dovecot*`, `cur`, `new` and `tmp` represent IMAP/mailbox state. 
+  If the address is only used by one device, the Maildir directories
+  will typically be empty unless the user of that address hasn't been online 
+  for a while. 
 
 
 ## Emergency Commands to disable automatic account creation
