@@ -232,7 +232,6 @@ class OutgoingBeforeQueueHandler:
 
         _, from_addr = parseaddr(message.get("from").strip())
 
-        logging.info(f"mime-from: {from_addr} envelope-from: {envelope.mail_from!r}")
         if envelope.mail_from.lower() != from_addr.lower():
             return f"500 Invalid FROM <{from_addr!r}> for <{envelope.mail_from!r}>"
 
@@ -244,6 +243,12 @@ class OutgoingBeforeQueueHandler:
 
         if envelope.mail_from in self.config.passthrough_senders:
             return
+
+        # allow self-sent Autocrypt Setup Message
+        if envelope.rcpt_tos == [from_addr]:
+            if message.get("subject") == "Autocrypt Setup Message":
+                if message.get_content_type() == "multipart/mixed":
+                    return
 
         passthrough_recipients = self.config.passthrough_recipients
 
@@ -296,7 +301,7 @@ class IncomingBeforeQueueHandler:
         if message.get("auto-submitted"):
             _, from_addr = parseaddr(message.get("from").strip())
             if from_addr.lower().startswith("mailer-daemon@"):
-                if message.get("content-type") == "multipart/report":
+                if message.get_content_type() == "multipart/report":
                     return
 
         for recipient in envelope.rcpt_tos:

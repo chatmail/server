@@ -137,6 +137,20 @@ def test_cleartext_excempt_privacy(maildata, gencreds, handler):
     assert "523" in handler.check_DATA(envelope=env2)
 
 
+def test_cleartext_self_send_autocrypt_setup_message(maildata, gencreds, handler):
+    from_addr = gencreds()[0]
+    to_addr = from_addr
+
+    msg = maildata("asm.eml", from_addr=from_addr, to_addr=to_addr)
+
+    class env:
+        mail_from = from_addr
+        rcpt_tos = [to_addr]
+        content = msg.as_bytes()
+
+    assert not handler.check_DATA(envelope=env)
+
+
 def test_cleartext_send_fails(maildata, gencreds, handler):
     from_addr = gencreds()[0]
     to_addr = gencreds()[0]
