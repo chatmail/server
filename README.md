@@ -32,7 +32,7 @@ after which the initially specified password is required
 for sending and receiving messages through them.
 
 Please see [this list of known apps and client projects](https://chatmail.at/clients.html) 
-and [this list of known public 3rd party chatmail relays](https://chatmail.at/relay).
+and [this list of known public 3rd party chatmail relays](https://chatmail.at/relays).
 
 
 ## Minimal requirements, Prerequisites 
