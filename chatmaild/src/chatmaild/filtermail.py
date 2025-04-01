@@ -299,7 +299,6 @@ class IncomingBeforeQueueHandler:
                 return
 
         for recipient in envelope.rcpt_tos:
-            print(f"filtering recipient: {recipient}")
             user = self.config.get_user(recipient)
             if user is None or user.is_incoming_cleartext_ok():
                 continue
