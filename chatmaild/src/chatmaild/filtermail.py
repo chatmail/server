@@ -301,7 +301,7 @@ class IncomingBeforeQueueHandler:
         for recipient in envelope.rcpt_tos:
             print(f"filtering recipient: {recipient}")
             user = self.config.get_user(recipient)
-            if user is not None and user.is_incoming_cleartext_ok():
+            if user is None or user.is_incoming_cleartext_ok():
                 continue
 
             print("Rejected unencrypted mail.", file=sys.stderr)
