@@ -240,7 +240,7 @@ class OutgoingBeforeQueueHandler:
             print("Outgoing: Filtering encrypted mail.", file=sys.stderr)
             return
 
-        print("Outgoing Filtering unencrypted mail.", file=sys.stderr)
+        print("Outgoing: Filtering unencrypted mail.", file=sys.stderr)
 
         if envelope.mail_from in self.config.passthrough_senders:
             return
