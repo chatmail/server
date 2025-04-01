@@ -1,29 +1,29 @@
 
 <img width="800px" src="www/src/collage-top.png"/>
 
-# Chatmail servers for end-to-end encrypted instant messaging 
+# Chatmail relays for end-to-end encrypted instant e-mail
 
-Chatmail servers are interoperable e-mail routing machines optimized for 
+Chatmail relays are interoperable Mail Transport Agents (MTAs) designed for: 
 
 - **Convenience:** Low friction instant onboarding
 
-- **Privacy:** No name, phone numbers,  email required or collected 
+- **Privacy:** No name, phone numbers, email required or collected 
 
 - **End-to-End Encryption enforced**: only OpenPGP messages with metadata minimization allowed 
 
-- **Instant:** Privacy-preserving push notifications for Apple, Google, and Huawei
+- **Instant:** Privacy-preserving Push Notifications for Apple, Google, and Huawei
 
-- **Speed:** Message delivery in well under a second.
+- **Speed:** Message delivery in half a second, with optional P2P realtime connections 
 
-- **Transport Security:** Strict TLS and DKIM enforced. 
+- **Transport Security:** Strict TLS and DKIM enforced 
 
-- **Reliability:** No spam or IP reputation checks; rate-limits are suitable for realtime chats.
+- **Reliability:** No spam or IP reputation checks; rate-limits are suitable for realtime chats
 
-- **Efficiency:** Messages are only stored for transit and removed automatically.
+- **Efficiency:** Messages are only stored for transit and removed automatically
 
-This repository contains everything needed to setup a ready-to-use chatmail server
+This repository contains everything needed to setup a ready-to-use chatmail relay
 comprised of a minimal setup of the battle-tested 
-[Postfix SMTP](https://www.postfix.org) and [Dovecot IMAP](https://www.dovecot.org) services.
+[Postfix SMTP](https://www.postfix.org) and [Dovecot IMAP](https://www.dovecot.org) MTAs/MDAs.
 
 The automated setup is designed and optimized for providing chatmail addresses
 for immediate permission-free onboarding through chat apps and bots.
@@ -31,8 +31,8 @@ Chatmail addresses are automatically created at first login,
 after which the initially specified password is required
 for sending and receiving messages through them.
 
-Please see [this list of known apps and client projects](https://chatmail.at/apps.html) which offer instant onboarding on chatmail servers
-and [this list of known public 3rd party chatmail servers](https://chatmail.at/server).
+Please see [this list of known apps and client projects](https://chatmail.at/clients.html) 
+and [this list of known public 3rd party chatmail relays](https://chatmail.at/relay).
 
 
 ## Minimal requirements, Prerequisites 
@@ -46,8 +46,8 @@ You will need the following:
   Chatmail servers only require 1GB RAM, one CPU, and perhaps 10GB storage for a
   few thousand active chatmail addresses.
 
-- Key-based SSH authentication to the server's root user.
-  You must add a passphrase-protected private key to the local ssh-agent
+- Key-based SSH authentication to the root user.
+  You must add a passphrase-protected private key to your local ssh-agent
   because you can't type in your passphrase during deployment.
   (An ed25519 private key is required due to an [upstream bug in paramiko](https://github.com/paramiko/paramiko/issues/2191))
 
@@ -72,8 +72,8 @@ Please substitute it with your own domain.
 2. Clone the repository and bootstrap the Python virtualenv.
 
    ```
-    git clone https://github.com/chatmail/server
-    cd server
+    git clone https://github.com/chatmail/relay
+    cd relay
     scripts/initenv.sh
    ```
 
@@ -90,7 +90,7 @@ Please substitute it with your own domain.
    ```
 
 
-5. Deploy to the remote chatmail server:
+5. Deploy to the remote chatmail relay:
 
    ```
     scripts/cmdeploy run
@@ -130,11 +130,11 @@ scripts/cmdeploy bench
 
 This repository has four directories:
 
-- [cmdeploy](https://github.com/chatmail/server/tree/main/cmdeploy)
+- [cmdeploy](https://github.com/chatmail/relay/tree/main/cmdeploy)
   is a collection of configuration files
   and a [pyinfra](https://pyinfra.com)-based deployment script.
 
-- [chatmaild](https://github.com/chatmail/server/tree/main/chatmaild)
+- [chatmaild](https://github.com/chatmail/relay/tree/main/chatmaild)
   is a Python package containing several small services
   which handle authentication,
   trigger push notifications on new messages,
@@ -143,12 +143,12 @@ This repository has four directories:
   and some other minor things.
   chatmaild can also be installed as a stand-alone Python package.
 
-- [www](https://github.com/chatmail/server/tree/main/www)
+- [www](https://github.com/chatmail/relay/tree/main/www)
   contains the html, css, and markdown files
-  which make up a chatmail server's web page.
-  Edit them before deploying to make your chatmail server stand out.
+  which make up a chatmail relay's web page.
+  Edit them before deploying to make your chatmail relay stand out.
 
-- [scripts](https://github.com/chatmail/server/tree/main/scripts)
+- [scripts](https://github.com/chatmail/relay/tree/main/scripts)
   offers two convenience tools for beginners;
   `initenv.sh` installs the necessary dependencies to a local virtual environment,
   and the `scripts/cmdeploy` script enables you
@@ -160,14 +160,14 @@ The `cmdeploy/src/cmdeploy/cmdeploy.py` command line tool
 helps with setting up and managing the chatmail service.
 `cmdeploy init` creates the `chatmail.ini` config file.
 `cmdeploy run` uses a [pyinfra](https://pyinfra.com/)-based [script](`cmdeploy/src/cmdeploy/__init__.py`)
-to automatically install or upgrade all chatmail components on a server,
+to automatically install or upgrade all chatmail components on a relay,
 according to the `chatmail.ini` config.
 
 The components of chatmail are:
 
-- [Postfix SMTP server](https://www.postfix.org) accepts sent messages (both from your users and from other servers)
+- [Postfix SMTP relay](https://www.postfix.org) accepts sent messages (both from your users and from other relays)
 
-- [Dovecot IMAP server](https://www.dovecot.org) stores messages for your users until they download them
+- [Dovecot IMAP relay](https://www.dovecot.org) stores messages for your users until they download them
 
 - [Nginx](https://nginx.org/) shows the web page with your privacy policy and additional information
 
@@ -177,49 +177,50 @@ The components of chatmail are:
 
 - [mtail](https://google.github.io/mtail/) for collecting anonymized metrics in case you have monitoring
 
+- [Iroh relay](https://www.iroh.computer/docs/concepts/relay) 
+  which helps client devices to establish Peer-to-Peer connections 
+
 - and the chatmaild services, explained in the next section:
 
 ### chatmaild
 
-chatmaild offers several commands
-which differentiate a *chatmail* server from a classic mail server.
-If you deploy them with cmdeploy,
-they are run by systemd services in the background.
-A short overview:
+`chatmaild` implements various systemd-controlled services  
+that integrate with Dovecot and Postfix to achieve instant-onboarding and 
+only relaying OpenPGP end-to-end messages encrypted messages. 
+A short overview of `chatmaild` services: 
 
-- [`doveauth`](https://github.com/chatmail/server/blob/main/chatmaild/src/chatmaild/doveauth.py) implements
-  create-on-login account creation semantics and is used
-  by Dovecot during login authentication and by Postfix
+- [`doveauth`](https://github.com/chatmail/relay/blob/main/chatmaild/src/chatmaild/doveauth.py) 
+  implements create-on-login address semantics and is used 
+  by Dovecot during IMAP login and by Postfix during SMTP/SUBMISSION login
   which in turn uses [Dovecot SASL](https://doc.dovecot.org/configuration_manual/authentication/dict/#complete-example-for-authenticating-via-a-unix-socket)
-  to authenticate users
-  to send mails for them.
+  to authenticate logins. 
 
-- [`filtermail`](https://github.com/chatmail/server/blob/main/chatmaild/src/chatmaild/filtermail.py) 
+- [`filtermail`](https://github.com/chatmail/relay/blob/main/chatmaild/src/chatmaild/filtermail.py) 
   prevents unencrypted email from leaving or entering the chatmail service
   and is integrated into Postfix's outbound and inbound mail pipelines.
 
-- [`chatmail-metadata`](https://github.com/chatmail/server/blob/main/chatmaild/src/chatmaild/metadata.py) is contacted by a
-  [dovecot lua script](https://github.com/chatmail/server/blob/main/cmdeploy/src/cmdeploy/dovecot/push_notification.lua)
-  to store user-specific server-side config.
+- [`chatmail-metadata`](https://github.com/chatmail/relay/blob/main/chatmaild/src/chatmaild/metadata.py) is contacted by a
+  [dovecot lua script](https://github.com/chatmail/relay/blob/main/cmdeploy/src/cmdeploy/dovecot/push_notification.lua)
+  to store user-specific relay-side config.
   On new messages,
-  it [passes the user's push notification token](https://github.com/chatmail/server/blob/main/chatmaild/src/chatmaild/notifier.py)
+  it [passes the user's push notification token](https://github.com/chatmail/relay/blob/main/chatmaild/src/chatmaild/notifier.py)
   to [notifications.delta.chat](https://delta.chat/help#instant-delivery)
   so the push notifications on the user's phone can be triggered
   by Apple/Google/Huawei.
 
-- [`delete_inactive_users`](https://github.com/chatmail/server/blob/main/chatmaild/src/chatmaild/delete_inactive_users.py)
+- [`delete_inactive_users`](https://github.com/chatmail/relay/blob/main/chatmaild/src/chatmaild/delete_inactive_users.py)
   deletes users if they have not logged in for a very long time.
   The timeframe can be configured in `chatmail.ini`.
 
-- [`lastlogin`](https://github.com/chatmail/server/blob/main/chatmaild/src/chatmaild/lastlogin.py)
+- [`lastlogin`](https://github.com/chatmail/relay/blob/main/chatmaild/src/chatmaild/lastlogin.py)
   is contacted by dovecot when a user logs in
   and stores the date of the login.
 
-- [`echobot`](https://github.com/chatmail/server/blob/main/chatmaild/src/chatmaild/echo.py)
+- [`echobot`](https://github.com/chatmail/relay/blob/main/chatmaild/src/chatmaild/echo.py)
   is a small bot for test purposes.
   It simply echoes back messages from users.
 
-- [`chatmail-metrics`](https://github.com/chatmail/server/blob/main/chatmaild/src/chatmaild/metrics.py)
+- [`chatmail-metrics`](https://github.com/chatmail/relay/blob/main/chatmaild/src/chatmaild/metrics.py)
   collects some metrics and displays them at `https://example.org/metrics`.
 
 ### Home page and getting started for users
@@ -228,7 +229,7 @@ A short overview:
 to a Nginx web server with:
 
 - a default `index.html` along with a QR code that users can click to
-  create accounts on your chatmail provider
+  create an address on your chatmail relay 
 
 - a default `info.html` that is linked from the home page
 
@@ -256,7 +257,7 @@ This starts a local live development cycle for chatmail web pages:
 
 ## Mailbox directory layout
 
-Fresh chatmail server addresses have a mailbox directory that contains: 
+Fresh chatmail addresses have a mailbox directory that contains: 
 
 - a `password` file with the salted password required for authenticating
   whether a login may use the address to send/receive messages. 
@@ -272,17 +273,17 @@ Fresh chatmail server addresses have a mailbox directory that contains:
   for a while. 
 
 
-## Emergency Commands to disable automatic account creation
+## Emergency Commands to disable automatic address creation
 
-If you need to stop account creation,
-e.g. because some script is wildly creating accounts,
-login to the server with ssh and run:
+If you need to stop address creation,
+e.g. because some script is wildly creating addresses, 
+login with ssh and run:
 
 ```
     touch /etc/chatmail-nocreate
 ```
 
-Account creation will be denied while this file is present.
+Chatmail address creation will be denied while this file is present.
 
 ### Ports
 
@@ -293,11 +294,11 @@ Port 443 multiplexes HTTPS, IMAP and SMTP using ALPN to redirect connections to 
 [acmetool](https://hlandau.github.io/acmetool/) listens on port 80 (HTTP).
 
 chatmail-core based apps will, however, discover all ports and configurations
-automatically by reading the [autoconfig XML file](https://www.ietf.org/archive/id/draft-bucksch-autoconfig-00.html) from the chatmail server.
+automatically by reading the [autoconfig XML file](https://www.ietf.org/archive/id/draft-bucksch-autoconfig-00.html) from the chatmail relay server.
 
 ## Email authentication
 
-chatmail servers rely on [DKIM](https://www.rfc-editor.org/rfc/rfc6376)
+Chatmail relays enforce [DKIM](https://www.rfc-editor.org/rfc/rfc6376)
 to authenticate incoming emails.
 Incoming emails must have a valid DKIM signature with
 Signing Domain Identifier (SDID, `d=` parameter in the DKIM-Signature header)
@@ -324,20 +325,20 @@ this is ensured by `filtermail` proxy.
 
 Postfix is configured to require valid TLS
 by setting [`smtp_tls_security_level`](https://www.postfix.org/postconf.5.html#smtp_tls_security_level) to `verify`.
-If emails don't arrive from a chatmail server to your server,
-the problem is likely that your server does not have a valid TLS certificate.
+If emails don't arrive at your chatmail relay server, 
+the problem is likely that your relay does not have a valid TLS certificate.
 
-You can test it by resolving `MX` records of your server domain
-and then connecting to MX servers (e.g `mx.example.org`) with
+You can test it by resolving `MX` records of your relay domain
+and then connecting to MX relays (e.g `mx.example.org`) with
 `openssl s_client -connect mx.example.org:25 -verify_hostname mx.example.org -verify_return_error -starttls smtp`
 from the host that has open port 25 to verify that certificate is valid.
 
-When providing a TLS certificate to your server,
+When providing a TLS certificate to your chatmail server, 
 make sure to provide the full certificate chain
 and not just the last certificate.
 
-If you are running Exim server and don't see incoming connections
-from a chatmail server in the logs,
+If you are running an Exim server and don't see incoming connections
+from a chatmail relay server in the logs,
 make sure `smtp_no_mail` log item is enabled in the config
 with `log_selector = +smtp_no_mail`.
 By default Exim does not log sessions that are closed
@@ -346,9 +347,9 @@ This happens if certificate is not recognized as valid by Postfix,
 so you might think that connection is not established
 while actually it is a problem with your TLS certificate.
 
-## Migrating chatmail server to a new host
+## Migrating a chatmail relay to a new host
 
-If you want to migrate chatmail from an old machine
+If you want to migrate chatmail relay from an old machine
 to a new machine,
 you can use these steps.
 They were tested with a Linux laptop;
@@ -356,8 +357,8 @@ you might need to adjust some of the steps to your environment.
 
 Let's assume that your `mail_domain` is `mail.example.org`,
 all involved machines run Debian 12,
-your old server's IP address is `13.37.13.37`,
-and your new server's IP address is `13.12.23.42`.
+your old site's IP address is `13.37.13.37`,
+and your new site's IP address is `13.12.23.42`.
 
 Note, you should lower the TTLs of your DNS records to a value
 such as 300 (5 minutes) so the migration happens as smoothly as possible.
@@ -365,7 +366,7 @@ such as 300 (5 minutes) so the migration happens as smoothly as possible.
 During the guide you might get a warning about changed SSH Host keys;
 in this case, just run `ssh-keygen -R "mail.example.org"` as recommended.
 
-1. First, disable mail services on the old server.
+1. First, disable mail services on the old site. 
 
    ```
     cmdeploy run --disable-mail --ssh-host 13.37.13.37
@@ -375,16 +376,15 @@ in this case, just run `ssh-keygen -R "mail.example.org"` as recommended.
    and will not be able to send or receive messages
    until the migration is completed.
 
-2. Now we want to copy `/home/vmail`, `/var/lib/acme`, `/etc/dkimkeys`, `/run/echobot`, and `/var/spool/postfix` to the new server.
-   Login to the old server while forwarding your SSH agent so you can copy directly from the old server to the new server with
-   your SSH key:
-
+2. Now we want to copy `/home/vmail`, `/var/lib/acme`, `/etc/dkimkeys`, `/run/echobot`, and `/var/spool/postfix` to the new site. 
+   Login to the old site while forwarding your SSH agent 
+   so you can copy directly from the old to the new site with your SSH key:
    ```
     ssh -A root@13.37.13.37
     tar c - /home/vmail/mail /var/lib/acme /etc/dkimkeys /run/echobot /var/spool/postfix | ssh root@13.12.23.42 "tar x -C /"
    ```
 
-   This transfers all accounts, the TLS certificate, DKIM keys (so DKIM DNS record remains valid), and the echobot's password so it continues to function.
+   This transfers all addresses, the TLS certificate, DKIM keys (so DKIM DNS record remains valid), and the echobot's password so it continues to function.
    It also preserves the Postfix mail spool so any messages pending delivery will still be delivered.
 
 3. Install chatmail on the new machine:
@@ -392,9 +392,10 @@ in this case, just run `ssh-keygen -R "mail.example.org"` as recommended.
    ```
     cmdeploy run --disable-mail --ssh-host 13.12.23.42
    ```
-   Postfix and Dovecot are disabled for now; we will enable them later. This ensures all user accounts are provisioned.
+   Postfix and Dovecot are disabled for now; we will enable them later. 
+   We first need to make the new site fully operational. 
 
-3. On the new server, run the following to ensure the ownership is correct in case UIDs/GIDs changed:
+3. On the new site, run the following to ensure the ownership is correct in case UIDs/GIDs changed:
 
    ```
     chown root: -R /var/lib/acme
@@ -403,46 +404,47 @@ in this case, just run `ssh-keygen -R "mail.example.org"` as recommended.
     chown echobot: -R /run/echobot
    ```
 
-4. Now, update DNS to the new IP addresses.
+4. Now, update DNS entries. 
 
-   If other servers try to deliver messages to your server they may fail,
-   but normally email servers will retry delivering messages
+   If other MTAs try to deliver messages to your chatmail domain they may fail intermittently,
+   as DNS catches up with the new site settings 
+   but normally will retry delivering messages
    for at least a week, so messages will not be lost.
 
-5. Finally, you can execute `cmdeploy run --ssh-host 13.12.23.42` to turn on chatmail on the new server.
-    Your users will be able to use the chatmail server as soon as the DNS changes have propagated.
-    Voilà!
+5. Finally, you can execute `cmdeploy run --ssh-host 13.12.23.42` to turn on chatmail on the new relay.
+   Your users will be able to use the chatmail site as soon as the DNS changes have propagated.
+   Voilà!
 
 ## Setting up a reverse proxy
 
-A chatmail server does not depend on the client IP address
+A chatmail relay MTA does not track or depend on the client IP address
 for its operation, so it can be run behind a reverse proxy.
 This will not even affect incoming mail authentication
 as DKIM only checks the cryptographic signature
 of the message and does not use the IP address as the input.
 
-For example, you may want to self-host your chatmail server
+For example, you may want to self-host your chatmail relay
 and only use hosted VPS to provide a public IP address
 for client connections and incoming mail.
-You can connect chatmail server to VPS
+You can connect chatmail relay to VPS
 using a tunnel protocol
 such as [WireGuard](https://www.wireguard.com/)
 and setup a reverse proxy on a VPS
-to forward connections to the chatmail server
+to forward connections to the chatmail relay
 over the tunnel.
 You can also setup multiple reverse proxies
-for your chatmail server in different networks
-to ensure your server is reachable even when
+for your chatmail relay in different networks
+to ensure your relay is reachable even when
 one of the IPs becomes inaccessible due to
 hosting or routing problems.
 
-Note that your server still needs
+Note that your chatmail relay still needs
 to be able to make outgoing connections on port 25
 to send messages outside.
 
 To setup a reverse proxy
 (or rather Destination NAT, DNAT)
-for your chatmail server,
+for your chatmail relay,
 put the following configuration in `/etc/nftables.conf`:
 ```
 #!/usr/sbin/nft -f
@@ -454,7 +456,7 @@ define wan = eth0
 # Which ports to proxy.
 #
 # Note that SSH is not proxied
-# so it is possible to log into the proxy server
+# so it is possible to log into the proxy server 
 # and not the original one.
 define ports = { smtp, http, https, imap, imaps, submission, submissions }
 
@@ -517,7 +519,7 @@ table inet filter {
 ```
 
 Run `systemctl enable nftables.service`
-to ensure configuration is reloaded when the proxy server reboots.
+to ensure configuration is reloaded when the proxy relay reboots.
 
 Uncomment in `/etc/sysctl.conf` the following two lines:
 
@@ -526,7 +528,7 @@ net.ipv4.ip_forward=1
 net.ipv6.conf.all.forwarding=1
 ```
 
-Then reboot the server or do `sysctl -p` and `nft -f /etc/nftables.conf`.
+Then reboot the relay or do `sysctl -p` and `nft -f /etc/nftables.conf`.
 
-Once proxy server is set up,
+Once proxy relay is set up,
 you can add its IP address to the DNS.
