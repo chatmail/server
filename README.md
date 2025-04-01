@@ -165,9 +165,9 @@ according to the `chatmail.ini` config.
 
 The components of chatmail are:
 
-- [Postfix SMTP relay](https://www.postfix.org) accepts sent messages (both from your users and from other relays)
+- [Postfix SMTP](https://www.postfix.org) accepts sent messages (both from your users and from other relays)
 
-- [Dovecot IMAP relay](https://www.dovecot.org) stores messages for your users until they download them
+- [Dovecot IMAP](https://www.dovecot.org) stores messages for your users until they download them
 
 - [Nginx](https://nginx.org/) shows the web page with your privacy policy and additional information
 
@@ -200,7 +200,7 @@ A short overview of `chatmaild` services:
   and is integrated into Postfix's outbound and inbound mail pipelines.
 
 - [`chatmail-metadata`](https://github.com/chatmail/relay/blob/main/chatmaild/src/chatmaild/metadata.py) is contacted by a
-  [dovecot lua script](https://github.com/chatmail/relay/blob/main/cmdeploy/src/cmdeploy/dovecot/push_notification.lua)
+  [Dovecot lua script](https://github.com/chatmail/relay/blob/main/cmdeploy/src/cmdeploy/dovecot/push_notification.lua)
   to store user-specific relay-side config.
   On new messages,
   it [passes the user's push notification token](https://github.com/chatmail/relay/blob/main/chatmaild/src/chatmaild/notifier.py)
@@ -213,7 +213,7 @@ A short overview of `chatmaild` services:
   The timeframe can be configured in `chatmail.ini`.
 
 - [`lastlogin`](https://github.com/chatmail/relay/blob/main/chatmaild/src/chatmaild/lastlogin.py)
-  is contacted by dovecot when a user logs in
+  is contacted by Dovecot when a user logs in
   and stores the date of the login.
 
 - [`echobot`](https://github.com/chatmail/relay/blob/main/chatmaild/src/chatmaild/echo.py)
