@@ -11,7 +11,11 @@ def read_config(inipath):
     assert Path(inipath).exists(), inipath
     cfg = iniconfig.IniConfig(inipath)
     params = cfg.sections["params"]
-    return Config(inipath, params=params)
+    default_config_content = get_default_config_content(params["mail_domain"])
+    df_params = iniconfig.IniConfig("ini", data=default_config_content)["params"]
+    new_params = dict(df_params.items())
+    new_params.update(params)
+    return Config(inipath, params=new_params)
 
 
 class Config:
@@ -75,6 +79,11 @@ class Config:
 
 def write_initial_config(inipath, mail_domain, overrides):
     """Write out default config file, using the specified config value overrides."""
+    content = get_default_config_content(mail_domain, **overrides)
+    inipath.write_text(content)
+
+
+def get_default_config_content(mail_domain, **overrides):
     from importlib.resources import files
 
     inidir = files(__package__).joinpath("ini")
@@ -119,5 +128,4 @@ def write_initial_config(inipath, mail_domain, overrides):
             else:
                 lines.append(line)
         content = "\n".join(lines)
-
-    inipath.write_text(content)
+    return content
