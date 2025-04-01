@@ -296,7 +296,8 @@ class IncomingBeforeQueueHandler:
         if message.get("auto-submitted"):
             _, from_addr = parseaddr(message.get("from").strip())
             if from_addr.lower().startswith("mailer-daemon@"):
-                return
+                if message.get("content-type") == "multipart/report":
+                    return
 
         for recipient in envelope.rcpt_tos:
             user = self.config.get_user(recipient)
