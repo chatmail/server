@@ -237,7 +237,7 @@ class OutgoingBeforeQueueHandler:
             return f"500 Invalid FROM <{from_addr!r}> for <{envelope.mail_from!r}>"
 
         if mail_encrypted or is_securejoin(message):
-            print("Outgoing Filtering encrypted mail.", file=sys.stderr)
+            print("Outgoing: Filtering encrypted mail.", file=sys.stderr)
             return
 
         print("Outgoing Filtering unencrypted mail.", file=sys.stderr)
