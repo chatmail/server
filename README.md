@@ -3,7 +3,7 @@
 
 # Chatmail relays for end-to-end encrypted instant e-mail
 
-Chatmail relays are interoperable Mail Transport Agents (MTAs) designed for: 
+Chatmail relay servers are interoperable Mail Transport Agents (MTAs) designed for: 
 
 - **Convenience:** Low friction instant onboarding
 
@@ -32,7 +32,7 @@ after which the initially specified password is required
 for sending and receiving messages through them.
 
 Please see [this list of known apps and client projects](https://chatmail.at/clients.html) 
-and [this list of known public 3rd party chatmail relays](https://chatmail.at/relays).
+and [this list of known public 3rd party chatmail relay servers](https://chatmail.at/relays).
 
 
 ## Minimal requirements, Prerequisites 
@@ -43,7 +43,7 @@ You will need the following:
 
 - A Debian 12 server with reachable SMTP/SUBMISSIONS/IMAPS/HTTPS ports.
   IPv6 is encouraged if available.
-  Chatmail servers only require 1GB RAM, one CPU, and perhaps 10GB storage for a
+  Chatmail relay servers only require 1GB RAM, one CPU, and perhaps 10GB storage for a
   few thousand active chatmail addresses.
 
 - Key-based SSH authentication to the root user.
@@ -90,7 +90,7 @@ Please substitute it with your own domain.
    ```
 
 
-5. Deploy to the remote chatmail relay:
+5. Deploy the remote chatmail relay server:
 
    ```
     scripts/cmdeploy run
@@ -165,9 +165,10 @@ according to the `chatmail.ini` config.
 
 The components of chatmail are:
 
-- [Postfix SMTP](https://www.postfix.org) accepts sent messages (both from your users and from other relays)
+- [Postfix SMTP MTA](https://www.postfix.org) accepts and relays messages
+  (both from your users and from the wider e-mail MTA network)
 
-- [Dovecot IMAP](https://www.dovecot.org) stores messages for your users until they download them
+- [Dovecot IMAP MDA](https://www.dovecot.org) stores messages for your users until they download them
 
 - [Nginx](https://nginx.org/) shows the web page with your privacy policy and additional information
 
@@ -333,7 +334,7 @@ and then connecting to MX relays (e.g `mx.example.org`) with
 `openssl s_client -connect mx.example.org:25 -verify_hostname mx.example.org -verify_return_error -starttls smtp`
 from the host that has open port 25 to verify that certificate is valid.
 
-When providing a TLS certificate to your chatmail server, 
+When providing a TLS certificate to your chatmail relay server, 
 make sure to provide the full certificate chain
 and not just the last certificate.
 
@@ -412,7 +413,7 @@ in this case, just run `ssh-keygen -R "mail.example.org"` as recommended.
    for at least a week, so messages will not be lost.
 
 5. Finally, you can execute `cmdeploy run --ssh-host 13.12.23.42` to turn on chatmail on the new relay.
-   Your users will be able to use the chatmail site as soon as the DNS changes have propagated.
+   Your users will be able to use the chatmail relay as soon as the DNS changes have propagated.
    Voilà!
 
 ## Setting up a reverse proxy
