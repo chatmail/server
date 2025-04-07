@@ -6,29 +6,6 @@ interoperable e-mail service for everyone. What's behind a `chatmail` is
 effectively a normal e-mail address just like any other but optimized 
 for the usage in chats, especially DeltaChat.
 
-### Choosing a chatmail address instead of using a random one
-
-In the Delta Chat account setup you may tap `Create a profile` then `Use other server` and choose `Classic e-mail login`. Here fill the two fields like this: 
-
-- `E-Mail Address`: invent a word with
-{% if username_min_length == username_max_length %}
-  *exactly* {{ username_min_length }}
-{% else %}
-  {{ username_min_length}}
-  {% if username_max_length == "more" %}
-    or more
-  {% else %}
-    to {{ username_max_length }}
-  {% endif %}
-{% endif %}
-  characters
-  and append `@{{config.mail_domain}}` to it.
-
-- `Existing Password`: invent at least {{ password_min_length }} characters.
-
-If the e-mail address is not yet taken, you'll get that account. 
-The first login sets your password. 
-
 
 ### Rate and storage limits 
 
