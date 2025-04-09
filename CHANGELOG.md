@@ -2,6 +2,9 @@
 
 ## untagged
 
+- Avoid "acmetool not found" during initial run
+  ([#550](https://github.com/chatmail/relay/pull/550))
+
 - Enforce end-to-end encryption for incoming messages. 
   New user address mailboxes now get a `enforceE2EEincoming` file 
   which prohibits incoming cleartext messages from other domains. 
