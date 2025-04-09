@@ -1,10 +1,13 @@
-from subprocess import CalledProcessError, check_output
+from subprocess import DEVNULL, CalledProcessError, check_output
 
 
 def shell(command, fail_ok=False):
     print(f"$ {command}")
+    args = dict(shell=True)
+    if fail_ok:
+        args["stderr"] = DEVNULL
     try:
-        return check_output(command, shell=True).decode().rstrip()
+        return check_output(command, **args).decode().rstrip()
     except CalledProcessError:
         if not fail_ok:
             raise
