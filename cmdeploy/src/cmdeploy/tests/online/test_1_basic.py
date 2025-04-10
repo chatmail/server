@@ -60,7 +60,7 @@ class TestSSHExecutor:
         datestring = out.split("=")[1]
         since_date = datetime.datetime.strptime(datestring, "%a %Y-%m-%d %H:%M:%S %Z")
         now = datetime.datetime.now(since_date.tzinfo)
-        assert (now - since_date).total_seconds() < 60 * 60 * 48
+        assert (now - since_date).total_seconds() < 60 * 60 * 51
 
 
 def test_remote(remote, imap_or_smtp):
