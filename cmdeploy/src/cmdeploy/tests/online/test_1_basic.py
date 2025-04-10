@@ -118,7 +118,12 @@ def test_authenticated_from(cmsetup, maildata):
 def test_reject_missing_dkim(cmsetup, maildata, from_addr):
     recipient = cmsetup.gen_users(1)[0]
     msg = maildata("encrypted.eml", from_addr=from_addr, to_addr=recipient.addr).as_string()
-    with smtplib.SMTP(cmsetup.maildomain, 25) as s:
+    try:
+        conn = smtplib.SMTP(cmsetup.maildomain, 25, timeout=10)
+    except TimeoutError:
+        pytest.skip(f"port 25 not reachable for {cmsetup.maildomain}")
+
+    with conn as s:
         with pytest.raises(smtplib.SMTPDataError, match="No valid DKIM signature"):
             s.sendmail(from_addr=from_addr, to_addrs=recipient.addr, msg=msg)
 

@@ -2,6 +2,9 @@
 
 ## untagged
 
+- Handle Port-25 connect errors more gracefully (common with VPNs)
+  ([#552](https://github.com/chatmail/relay/pull/552))
+
 - Avoid "acmetool not found" during initial run
   ([#550](https://github.com/chatmail/relay/pull/550))
 

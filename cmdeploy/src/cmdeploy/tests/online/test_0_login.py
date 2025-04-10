@@ -90,8 +90,13 @@ def test_concurrent_logins_same_account(
 
 
 def test_no_vrfy(chatmail_config):
+    domain = chatmail_config.mail_domain
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((chatmail_config.mail_domain, 25))
+    sock.settimeout(10)
+    try:
+        sock.connect((domain, 25))
+    except socket.timeout:
+        pytest.skip(f"port 25 not reachable for {domain}")
     banner = sock.recv(1024)
     print(banner)
     sock.send(b"VRFY wrongaddress@%s\r\n" % (chatmail_config.mail_domain.encode(),))
