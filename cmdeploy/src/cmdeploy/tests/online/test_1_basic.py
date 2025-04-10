@@ -55,11 +55,12 @@ class TestSSHExecutor:
 
     def test_opendkim_restarted(self, sshexec):
         """check that opendkim is not running for longer than a day."""
-        out = sshexec(call=remote.rshell.shell, kwargs=dict(command="systemctl status opendkim"))
-        assert type(out) == str
-        since_date_str = out.split("since ")[1].split(";")[0]
-        since_date = datetime.datetime.strptime(since_date_str, "%a %Y-%m-%d %H:%M:%S %Z")
-        assert (datetime.datetime.now() - since_date).total_seconds() < 60 * 60 * 24
+        cmd = "systemctl show opendkim --timestamp=utc --property=ActiveEnterTimestamp"
+        out = sshexec(call=remote.rshell.shell, kwargs=dict(command=cmd))
+        datestring = out.split("=")[1]
+        since_date = datetime.datetime.strptime(datestring, "%a %Y-%m-%d %H:%M:%S %Z")
+        now = datetime.datetime.now(since_date.tzinfo)
+        assert (now - since_date).total_seconds() < 60 * 60 * 24
 
 
 def test_remote(remote, imap_or_smtp):

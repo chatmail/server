@@ -5,6 +5,10 @@
 - Avoid "acmetool not found" during initial run
   ([#550](https://github.com/chatmail/relay/pull/550))
 
+- Fix timezone handling such that client/servers do not need to use
+  same timezone. 
+  ([#553](https://github.com/chatmail/relay/pull/553))
+
 - Enforce end-to-end encryption for incoming messages. 
   New user address mailboxes now get a `enforceE2EEincoming` file 
   which prohibits incoming cleartext messages from other domains. 
