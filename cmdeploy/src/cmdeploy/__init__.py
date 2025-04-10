@@ -11,11 +11,27 @@ from pathlib import Path
 
 from chatmaild.config import Config, read_config
 from pyinfra import facts, host
+from pyinfra.api import FactBase
 from pyinfra.facts.files import File
 from pyinfra.facts.systemd import SystemdEnabled
 from pyinfra.operations import apt, files, pip, server, systemd
 
 from .acmetool import deploy_acmetool
+
+
+class Port(FactBase):
+    """
+    Returns the process occuping a port.
+    """
+
+    def command(self, port: int) -> str:
+        return (
+            "ss -lptn 'src :%d' | awk 'NR>1 {print $6,$7}' | sed 's/users:((\"//;s/\".*//'"
+            % (port,)
+        )
+
+    def process(self, output: [str]) -> str:
+        return output[0]
 
 
 def _build_chatmaild(dist_dir) -> None:
@@ -229,7 +245,6 @@ def _configure_opendkim(domain: str, dkim_selector: str = "dkim") -> bool:
         dest="/etc/systemd/system/opendkim.service.d/10-prevent-memory-leak.conf",
     )
     need_restart |= service_file.changed
-
 
     return need_restart
 
@@ -588,12 +603,12 @@ def deploy_chatmail(config_path: Path, disable_mail: bool) -> None:
     # Run local DNS resolver `unbound`.
     # `resolvconf` takes care of setting up /etc/resolv.conf
     # to use 127.0.0.1 as the resolver.
-    systemd.service(
-        name="Disable nsd if it's running, so it doesn't block port 53",
-        service="nsd.service",
-        running=False,
-        enabled=False,
-    )
+    from cmdeploy.cmdeploy import Out
+
+    process_on_53 = host.get_fact(Port, port=53)
+    if process_on_53 not in (None, "unbound"):
+        Out().red(f"Can't install unbound: port 53 is occupied by: {process_on_53}")
+        exit(1)
     apt.packages(
         name="Install unbound",
         packages=["unbound", "unbound-anchor", "dnsutils"],
