@@ -533,3 +533,12 @@ Then reboot the relay or do `sysctl -p` and `nft -f /etc/nftables.conf`.
 
 Once proxy relay is set up,
 you can add its IP address to the DNS.
+
+## Neighbors and Acquaintances
+
+Here are some related projects that you may be interested in:
+
+- [Mox](https://github.com/-mjl/mox): A Golang email server.  [Work is in
+  progress](https://github.com/mjl-/mox/issues/251) to modify it to support all
+  of the features and configuration settings required to operate as a chatmail
+  relay.
