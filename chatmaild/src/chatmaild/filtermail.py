@@ -251,7 +251,7 @@ class OutgoingBeforeQueueHandler:
                     return
 
         passthrough_recipients = self.config.passthrough_recipients
-        
+
         for recipient in envelope.rcpt_tos:
             if recipient_matches_passthrough(recipient, passthrough_recipients):
                 continue
