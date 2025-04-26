@@ -159,7 +159,7 @@ This repository has four directories:
 The `cmdeploy/src/cmdeploy/cmdeploy.py` command line tool
 helps with setting up and managing the chatmail service.
 `cmdeploy init` creates the `chatmail.ini` config file.
-`cmdeploy run` uses a [pyinfra](https://pyinfra.com/)-based [script](`cmdeploy/src/cmdeploy/__init__.py`)
+`cmdeploy run` uses a [pyinfra](https://pyinfra.com/)-based [`script`](cmdeploy/src/cmdeploy/__init__.py)
 to automatically install or upgrade all chatmail components on a relay,
 according to the `chatmail.ini` config.
 
