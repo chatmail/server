@@ -8,6 +8,9 @@
 - Add config value after how many days large files are deleted
   ([#555](https://github.com/chatmail/relay/pull/555))
 
+- filtermail: allow partial body length in OpenPGP payloads
+  ([#570](https://github.com/chatmail/relay/pull/570))
+
 ## 1.6.0 2025-04-11
 
 - Handle Port-25 connect errors more gracefully (common with VPNs)
